@@ -623,7 +623,7 @@ function build() {
         <h4>Formula</h4>
         <div id="bf-${ch.id}"></div>
         ${ch.extra ? `<div id="bx-${ch.id}"></div>` : ""}
-        <h4>Sliders for this channel</h4>
+        <h4>Assumptions for this channel</h4>
         <div class="dctl">${ch.controls.map(c => slider("d-", ch.id, c, state[ch.id][c.id])).join("")}</div>
         ${DEPS[ch.id].length ? `<h4>Worldview dials <span class="mini">(these move other channels too)</span></h4>
         <div class="dctl">${DEPS[ch.id].map(k => slider("d-" + ch.id + "-", "W", world.find(w => w.id === k), state.W[k])).join("")}</div>` : ""}
