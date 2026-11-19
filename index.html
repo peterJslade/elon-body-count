@@ -54,8 +54,6 @@
   .wdetails > summary { list-style: none; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.95rem; font-weight: 600; padding: 9px 18px; border: 2px solid var(--ink); border-radius: 999px; background: var(--card); color: var(--ink); margin-bottom: 10px; }
   .wdetails > summary::-webkit-details-marker { display: none; }
   .wdetails > summary:hover { background: var(--ink); color: #fff; }
-  .wdetails > summary .caret { display: inline-block; transition: transform .15s; }
-  .wdetails[open] > summary .caret { transform: rotate(90deg); }
   .world { background: #f1ede4; border-radius: 10px; padding: 16px 18px; }
   .wgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 4px 24px; }
 
@@ -149,7 +147,7 @@
     <div class="mini">Pick a persona below to change the worldview options, or personalize your worldview.</div>
     <div class="presets" id="presets"></div>
     <div class="tagline" id="tagline"></div>
-    <details class="wdetails"><summary><span class="caret" aria-hidden="true">▸</span> Personalize your worldview</summary>
+    <details class="wdetails"><summary>Personalize your worldview</summary>
       <div class="world"><div class="wgrid" id="world"></div></div>
     </details>
   </section>
