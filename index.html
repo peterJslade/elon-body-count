@@ -27,7 +27,6 @@
   .net-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
   .net { font-size: 2.6rem; font-weight: 700; font-variant-numeric: tabular-nums; }
   .net.pos, .val.pos { color: var(--save); } .net.neg, .val.neg { color: var(--kill); }
-  .verdict { font-style: italic; max-width: 460px; }
   .strip { position: sticky; top: 0; z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line);
            display: flex; gap: 16px; align-items: center; justify-content: space-between; padding: 6px 0; }
   .strip[hidden] { display: none; }
@@ -112,12 +111,8 @@
 
 <header>
   <h1>The Elon Ledger</h1>
-  <p class="sub">One man. Many companies. A rough accounting of who gets to keep breathing.</p>
-  <p class="intro">
-    Some of Musk's ventures plausibly save lives. Some plausibly end them. Some might do either, at a scale
-    that makes the rest a rounding error. The numbers are crude; the assumptions are <em>yours</em>.
-    Slide until it agrees with you.
-  </p>
+  <p class="sub">How many lives has Elon saved and killed?</p>
+  <p class="intro">The numbers are crude. The assumptions are <em>yours</em>.</p>
 </header>
 
 <main class="ui">
@@ -137,7 +132,6 @@
         <div class="net-label" id="netLabel">Net lives</div>
         <div id="net" class="net">—</div>
       </div>
-      <div class="verdict" id="verdict"></div>
       <div class="scope" role="group" aria-label="Whose lives count">
         <button data-scope-btn="global" aria-pressed="true">Global lives</button><button data-scope-btn="us" aria-pressed="false">American lives only</button>
       </div>
@@ -686,17 +680,6 @@ function restoreAll() {
   syncInputs(); update(); reorder();
 }
 
-function verdict(net) {
-  const a = Math.abs(net);
-  if (state.scope === "us") return net >= 0
-    ? "Counting only Americans, the ledger looks much kinder: the USAID deaths vanish, because they happened to foreigners. Make of that what you will."
-    : "Even counting only Americans, net negative. Impressive, given most of the damage was exported.";
-  if (a < 10000) return "Roughly a wash. Somewhere, an economist is calling this 'second-order.'";
-  if (net > 1e6) return "On your assumptions, a net life-saver on the scale of a major public health program. Tesla's PR team would like a word.";
-  if (net > 0) return "On your assumptions, net positive. The cars outweigh the chainsaw — for now.";
-  if (net < -1e6) return "On your assumptions, the foreign-aid cuts swamp everything else. Electric cars have not saved enough lives to make up for gutting HIV and malaria programs.";
-  return "On your assumptions, net negative. The chainsaw outweighs the cars.";
-}
 
 let lastRes = [];
 function update() {
@@ -745,7 +728,6 @@ function update() {
   const n1 = document.getElementById("net"); n1.textContent = fmt(net); n1.className = "net " + (net >= 0 ? "pos" : "neg");
   const sn = document.getElementById("stripNet"); sn.textContent = fmt(net); sn.style.color = net >= 0 ? "var(--save)" : "var(--kill)";
   const pr = document.getElementById("presets"); pr.classList.toggle("pos", net >= 0); pr.classList.toggle("neg", net < 0);
-  document.getElementById("verdict").textContent = verdict(net);
   const mug = document.getElementById("mug"), want = "images/musk_" + (net >= 0 ? "good" : "bad") + ".jpg";
   if (!mug.src.endsWith(want)) { mug.src = want; mug.alt = net >= 0 ? "Musk, beaming" : "Musk, with chainsaw"; }
 }
