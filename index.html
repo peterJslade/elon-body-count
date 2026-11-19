@@ -51,6 +51,9 @@
   .presets.neg button[aria-pressed="true"] { background: var(--kill); }
   .tagline { font-style: italic; font-family: Georgia, serif; min-height: 1.5em; margin: 2px 0 6px; }
   .wdetails { margin-top: 14px; }
+  .srcbox { margin-top: 14px; }
+  .srcbox > summary { cursor: pointer; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+  .srcbox > summary:hover { color: var(--ink); }
   .wdetails > summary { list-style: none; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.85rem; padding: 7px 12px; border: 1px solid var(--ink); border-radius: 999px; background: var(--card); color: var(--ink); margin-bottom: 10px; }
   .wdetails > summary::-webkit-details-marker { display: none; }
   .wdetails > summary:hover { background: var(--ink); color: #fff; }
@@ -627,7 +630,9 @@ function build() {
         <div class="dctl">${ch.controls.map(c => slider("d-", ch.id, c, state[ch.id][c.id])).join("")}</div>
         ${DEPS[ch.id].length ? `<h4>Worldview assumptions <span class="mini">(these also change other channels)</span></h4>
         <div class="dctl">${DEPS[ch.id].map(k => slider("d-" + ch.id + "-", "W", world.find(w => w.id === k), state.W[k])).join("")}</div>` : ""}
-        <div class="defs"><em>${ch.blurb}</em><br>Source: ${ch.src}</div>
+        <details class="srcbox"><summary>Sources and more information</summary>
+          <div class="defs"><em>${ch.blurb}</em><br>Source: ${ch.src}</div>
+        </details>
       </div>
     </details>`).join("");
 
