@@ -26,6 +26,7 @@
   .board-inner { display: flex; gap: 28px; align-items: center; flex-wrap: wrap; }
   .net-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
   .net { font-size: 2.6rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .net-note { font-size: 0.85rem; color: var(--muted); max-width: 30ch; margin-top: 4px; }
   .net.pos, .val.pos { color: var(--save); } .net.neg, .val.neg { color: var(--kill); }
   .strip { position: sticky; top: 0; z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line);
            display: flex; gap: 16px; align-items: center; justify-content: space-between; padding: 6px 0; }
@@ -130,6 +131,7 @@
       <div>
         <div class="net-label" id="netLabel">Net lives</div>
         <div id="net" class="net">—</div>
+        <div class="net-note">The net lives saved depends on your worldview and specific assumptions that you can change below.</div>
       </div>
       <div class="scope" role="group" aria-label="Whose lives count">
         <button data-scope-btn="global" aria-pressed="true">Global lives</button><button data-scope-btn="us" aria-pressed="false">American lives only</button>
