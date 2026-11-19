@@ -54,6 +54,7 @@
   .srcbox { margin-top: 14px; }
   .srcbox > summary { cursor: pointer; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
   .srcbox > summary:hover { color: var(--ink); }
+  .srclist { margin: 6px 0 0; padding-left: 18px; } .srclist li { margin: 3px 0; }
   .wdetails > summary { list-style: none; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.85rem; padding: 7px 12px; border: 1px solid var(--ink); border-radius: 999px; background: var(--card); color: var(--ink); margin-bottom: 10px; }
   .wdetails > summary::-webkit-details-marker { display: none; }
   .wdetails > summary:hover { background: var(--ink); color: #fff; }
@@ -286,7 +287,7 @@ const channels = [
     ],
     compute: (c, W) => climateLives(W, t => 3.2e9 * c.cut * evGap(W, t)),
     extra: (c, W) => evChart(W),
-    src: "Passenger cars emit ~3.2 Gt CO₂/yr (IEA). ICCT (2021): EVs cut lifecycle CO₂ 60–68% in the US, 37–45% in China, 19–34% in India. Bressler (2021) mortality cost of carbon, extended past 2100 at the same per-year rate. Fleet half-electric around 2045 with Musk (assumption)." },
+    src: ["Passenger cars emit about 3.2 Gt CO₂ a year (<a href=\"https://www.iea.org/energy-system/transport/road\" target=\"_blank\" rel=\"noopener\">IEA</a>)", "EVs cut lifecycle CO₂ by 60–68% in the US, 37–45% in China, 19–34% in India (<a href=\"https://theicct.org/publication/a-global-comparison-of-the-life-cycle-greenhouse-gas-emissions-of-combustion-engine-and-electric-passenger-cars/\" target=\"_blank\" rel=\"noopener\">ICCT, 2021</a>)", "Mortality cost of carbon: about 4,434 tonnes of CO₂ per death, extended past 2100 at the same rate (<a href=\"https://www.nature.com/articles/s41467-021-24487-w\" target=\"_blank\" rel=\"noopener\">Bressler, 2021</a>)", "World fleet half-electric around 2045 with Musk (assumption)"] },
 
   { id: "evair", group: "save", type: "save", title: "Tesla & city air",
     mech: "Going electric sooner means fewer years of tailpipe soot in cities, and fewer deaths from breathing it.",
@@ -297,7 +298,7 @@ const channels = [
     ],
     compute: (c, W) => sumF(W, t => c.base * Math.pow(0.98, t) * c.offset * evGap(W, t)),
     extra: (c, W) => evChart(W),
-    src: "Anenberg et al. (2019, ICCT): ~385,000 deaths from transport tailpipe emissions in 2015, mostly from heavy-duty diesel; light-duty cars are perhaps 60k (rough). Baseline falls 2%/yr as emission standards tighten." },
+    src: ["About 385,000 deaths from transport tailpipe emissions in 2015, mostly heavy-duty diesel (<a href=\"https://theicct.org/publication/a-global-snapshot-of-the-air-pollution-related-health-impacts-of-transportation-sector-emissions-in-2010-and-2015/\" target=\"_blank\" rel=\"noopener\">Anenberg et al., 2019</a>)", "Light-duty cars account for roughly 60,000 of these (assumption)", "Baseline falls 2% a year as emission standards tighten (assumption)"] },
 
   { id: "energy", group: "save", type: "save", title: "Solar roofs (SolarCity)",
     mech: "Rooftop solar that wouldn't otherwise exist displaces fossil power, keeping CO₂ out of the air.",
@@ -307,7 +308,7 @@ const channels = [
       { id: "att", label: "Share that wouldn't have been installed otherwise", min: 0, max: 1, step: 0.05, val: 0.3, show: pct, ends: ["None", "", "All"] },
     ],
     compute: (c, W) => climateLives(W, () => 0, c.gw * 1e3 * 1300 * 0.4 * 25 * c.att),
-    src: "~4 GW installed (SolarCity/Tesla filings). 1,300 MWh per MW per year (~15% US capacity factor). 0.4 t CO₂ per MWh displaced (US grid average, EIA). 25-year panel life. Bressler (2021) mortality cost of carbon." },
+    src: ["About 4 GW of solar installed by SolarCity/Tesla (<a href=\"https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001318605&type=10-K\" target=\"_blank\" rel=\"noopener\">Tesla 10-K filings</a>)", "0.4 t CO₂ per MWh displaced (US grid average) (<a href=\"https://www.eia.gov/tools/faqs/faq.php?id=74&t=11\" target=\"_blank\" rel=\"noopener\">EIA</a>)", "1,300 MWh per MW per year (about a 15% capacity factor) and a 25-year panel life (assumption)", "Mortality cost of carbon: about 4,434 tonnes of CO₂ per death, extended past 2100 at the same rate (<a href=\"https://www.nature.com/articles/s41467-021-24487-w\" target=\"_blank\" rel=\"noopener\">Bressler, 2021</a>)"] },
 
   { id: "fsd", group: "save", type: "mixed", title: "Full Self-Driving",
     mech: "Tesla began selling “Full Self-Driving” in 2016 and released it (as a supervised beta) in 2020. About 1.7 million Teslas now run it. No other carmaker sells a driver-assist system this capable. Tesla's own data say cars on FSD have about 3× fewer serious crashes per mile than Teslas driven by hand.",
@@ -321,7 +322,7 @@ const channels = [
     ],
     compute: (c, W) => ROAD * c.s * fsdGapYears(c, W) - 13,
     extra: (c, W) => fsdChart(c, W),
-    src: "WHO (2023): 1.19 million road deaths a year (held constant). Tesla Vehicle Safety Report (Oct 2026): 6.0M miles per airbag-deploying crash on FSD vs 0.66M US average and 2.0M for manually driven Teslas; 1.74M active FSD users (Q3 2026). NHTSA (2024) linked Autopilot to at least 13 fatal crashes. S-curve: 10%→90% adoption takes ~22 years." },
+    src: ["1.19 million road deaths a year, held constant (<a href=\"https://www.who.int/publications/i/item/9789240086517\" target=\"_blank\" rel=\"noopener\">WHO, 2023</a>)", "6.0M miles per airbag-deploying crash on FSD vs 0.66M US average and 2.0M for manually driven Teslas (<a href=\"https://www.tesla.com/fsd/safety\" target=\"_blank\" rel=\"noopener\">Tesla Vehicle Safety Report, 2026</a>)", "1.74 million active FSD users, including earlier one-time purchases (<a href=\"https://www.notateslaapp.com/news/4862/tesla-fsd-hits-record-subs-purchased-with-75-of-new-orders\" target=\"_blank\" rel=\"noopener\">Not a Tesla App, Q3 2026</a>)", "Autopilot linked to at least 13 fatal crashes (<a href=\"https://static.nhtsa.gov/odi/inv/2022/INCLA-EA22002-14498.pdf\" target=\"_blank\" rel=\"noopener\">NHTSA, 2024</a>)", "S-curve: going from 10% to 90% adoption takes about 22 years (assumption)"] },
 
   { id: "starlink", group: "save", type: "save", title: "Starlink: disasters & the remote",
     mech: "When disasters knock out phone towers, satellite internet lets rescuers coordinate and victims call for help.",
@@ -332,7 +333,7 @@ const channels = [
       { id: "hl", label: "Years until rivals catch up (half-life)", min: 1, max: 30, step: 1, val: 10, show: v => v + " yr", ends: ["1", "", "30"] },
     ],
     compute: (c, W) => 15000 * c.prev * c.sh * (5 + futYears(W, c.hl)),
-    src: "Our World in Data (EM-DAT): disasters kill 10,000–20,000 people a year on average. Starlink has served responders since ~2021 (five past years). Shares are guesses." },
+    src: ["Disasters kill 10,000–20,000 people a year on average (<a href=\"https://ourworldindata.org/natural-disasters\" target=\"_blank\" rel=\"noopener\">Our World in Data / EM-DAT</a>)", "Starlink has served responders since about 2021 (assumption)", "Shares of lives saved are guesses (assumption)"] },
 
   { id: "launch", group: "save", type: "save", title: "Cheap rockets, more satellites",
     mech: "Cheaper launches mean more weather satellites, better forecasts and earlier evacuations.",
@@ -343,7 +344,7 @@ const channels = [
       { id: "hl", label: "Years until rivals match SpaceX's prices (half-life)", min: 1, max: 30, step: 1, val: 10, show: v => v + " yr", ends: ["1", "", "30"] },
     ],
     compute: (c, W) => 18500 * c.avert * c.sh * (10 + futYears(W, c.hl)),
-    src: "WMO Atlas of Mortality (2021): ~185,000 deaths from weather, climate and water hazards in 2010–2019, ~18,500 a year. Ten past years of cheap launch. Shares are guesses." },
+    src: ["About 185,000 deaths from weather, climate and water hazards in 2010–2019 (about 18,500 a year) (<a href=\"https://wmo.int/publication-series/wmo-atlas-of-mortality-and-economic-losses-from-weather-climate-and-water-extremes-1970-2019\" target=\"_blank\" rel=\"noopener\">WMO Atlas of Mortality, 2021</a>)", "Ten past years of cheap launch (assumption)", "Shares of lives saved are guesses (assumption)"] },
 
   { id: "neuralink", group: "save", type: "save", title: "Neuralink",
     mech: "Brain implants restore some independence to paralysed patients; the quality-of-life gain is converted into life-equivalents.",
@@ -354,7 +355,7 @@ const channels = [
       { id: "yrs", label: "Years of benefit per patient", min: 1, max: 40, step: 1, val: 10, show: v => v + " yr", ends: ["1", "", "40"] },
     ],
     compute: (c, W) => c.n * c.q * c.yrs / 40,
-    src: "Neuralink reported 21 trial participants in January 2026 (Reuters). Health economists' rule of thumb: ~40 discounted QALYs per statistical life." },
+    src: ["21 trial participants as of January 2026 (<a href=\"https://www.yahoo.com/news/articles/elon-musks-neuralink-says-21-183038116.html\" target=\"_blank\" rel=\"noopener\">Reuters, via Yahoo News</a>)", "About 40 discounted QALYs per statistical life (health economists' rule of thumb) (assumption)"] },
 
   { id: "kids", group: "save", type: "save", title: "Lives created, personally",
     mech: "Musk has 14 children. That's it; that's the mechanism.",
@@ -364,7 +365,7 @@ const channels = [
         show: v => v + (v === 14 ? " (as last reported)" : ""), ends: ["0", "", "30, give it time"] },
     ],
     compute: (c, W) => c.n,
-    src: "Publicly reported count, 2025: 14 children with four mothers. Almost certainly out of date." },
+    src: ["14 known children with four mothers as of 2025 (<a href=\"https://globalnews.ca/news/11062910/elon-musk-14th-child-shivon-zilis-seldon-lycurgus/\" target=\"_blank\" rel=\"noopener\">Global News, 2025</a>)", "Almost certainly out of date"] },
 
   // ---- KILLED ----
   { id: "usaid", group: "kill", type: "kill", title: "Shutting down USAID",
@@ -375,7 +376,7 @@ const channels = [
       { id: "hl", label: "Years until other donors fill half the gap", min: 1, max: 30, step: 1, val: 5, show: v => v + " yr", ends: ["1", "", "30"] },
     ],
     compute: (c, W) => -2.8e6 * c.stick * W.blame * (1 + futYears(W, c.hl)),
-    src: "Cavalcanti et al. (2025), The Lancet: ~14 million extra deaths by 2030 under full defunding (~2.8M a year). Cuts began in 2025 (one past year). See also the Boston University Impact Counter." },
+    src: ["About 14 million extra deaths by 2030 under full defunding (about 2.8M a year) (<a href=\"https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(25)01186-9/fulltext\" target=\"_blank\" rel=\"noopener\">Cavalcanti et al., 2025, The Lancet</a>)", "Running tally of deaths from the cuts (<a href=\"https://www.bu.edu/sph/news/articles/2025/tracking-anticipated-deaths-from-usaid-funding-cuts/\" target=\"_blank\" rel=\"noopener\">Boston University Impact Counter</a>)", "Cuts began in 2025 (assumption)"] },
 
   { id: "doge", group: "kill", type: "kill", title: "The rest of DOGE",
     mech: "Cutting US public-health funding removes programs that were saving lives at a known cost per life.",
@@ -386,7 +387,7 @@ const channels = [
       { id: "hl", label: "Years until the funding is restored (half-life)", min: 1, max: 30, step: 1, val: 5, show: v => v + " yr", ends: ["1", "", "30"] },
     ],
     compute: (c, W) => -(c.cut * 1e9 / (c.cpl * 1e6)) * W.blame * (1 + futYears(W, c.hl)),
-    src: "NIH grant terminations (~$2–3B, reported). The ~$11B CDC clawback (March 2025) was COVID-era money, ~80% restored in states that sued (KFF Health News), so mostly excluded. US public-health spending saves a life for roughly $1–10M." },
+    src: ["NIH grant terminations of roughly $2–3B (<a href=\"https://www.sciencenews.org/article/nih-grant-cuts-science-funding-billions\" target=\"_blank\" rel=\"noopener\">Science News, 2025</a>)", "The ~$11B CDC clawback was COVID-era money, ~80% restored in states that sued, so mostly excluded (<a href=\"https://kffhealthnews.org/courts/cdc-grant-trump-clawbacks-blue-red-state-comparison/\" target=\"_blank\" rel=\"noopener\">KFF Health News, 2025</a>)", "US public-health spending saves a life for roughly $1–10M (assumption)"] },
 
   { id: "ira", group: "kill", type: "kill", title: "Buying an election, losing the clean-energy credits",
     mech: "Musk's money helped elect a government that repealed clean-energy credits, so the US emits more CO₂, which means more climate deaths.",
@@ -397,7 +398,7 @@ const channels = [
       { id: "elec", label: "Musk's share of the election outcome", min: 0, max: 0.2, step: 0.005, val: 0.02, show: pct1, ends: ["None", "", "Kingmaker"] },
     ],
     compute: (c, W) => -c.elec * climateLives(W, t => iraMt(c, t) * 1e6),
-    src: "REPEAT Project (Princeton, 2025): +190 Mt/yr in 2030, +470 Mt/yr by 2035; Rhodium: +315–574 Mt. Musk gave ~$291M (OpenSecrets) of roughly $15–16B in 2024 election spending ≈ 2%." },
+    src: ["Rolling back the clean-energy credits adds ~190 Mt CO₂ a year in 2030 and ~470 Mt by 2035 (<a href=\"https://zenodo.org/records/15801701\" target=\"_blank\" rel=\"noopener\">REPEAT Project, Princeton, 2025</a>)", "Alternative estimate: +315–574 Mt in 2035 (<a href=\"https://rhg.com/research/assessing-the-impacts-of-the-final-one-big-beautiful-bill/\" target=\"_blank\" rel=\"noopener\">Rhodium Group, 2025</a>)", "Musk gave about $291M in the 2024 cycle (<a href=\"https://www.opensecrets.org/elections-overview/biggest-donors?cycle=2024\" target=\"_blank\" rel=\"noopener\">OpenSecrets</a>)", "Of roughly $15–16B total 2024 election spending, so about 2% (assumption)"] },
 
   { id: "memphis", group: "kill", type: "kill", title: "xAI's gas turbines (Memphis & Southaven)",
     mech: "Gas turbines powering xAI emit nitrogen oxides, which form fine particles and smog that kill people downwind.",
@@ -408,7 +409,7 @@ const channels = [
       { id: "yrs", label: "Years the turbines run in total", min: 2, max: 20, step: 1, val: 5, show: v => v + " yr", ends: ["2", "", "20"] },
     ],
     compute: (c, W) => -c.nox * c.dpt / 1000 * (2 + sumF(W, t => t < c.yrs - 2 ? 1 : 0)),
-    src: "SELC: Memphis turbines ~1,200–2,100 t NOx/yr; Southaven ~2,500 t, possibly 4,000+ (SELC/Earthjustice, 2026). EPA benefit-per-ton estimates imply roughly 1–3 deaths per 1,000 t NOx. Running since 2024." },
+    src: ["Memphis turbines: about 1,200–2,100 t NOx a year (potential to emit) (<a href=\"https://www.selc.org/news/resistance-against-elon-musks-xai-facility-in-south-memphis-gets-stronger/\" target=\"_blank\" rel=\"noopener\">SELC</a>)", "Southaven turbines: about 2,500 t, possibly 4,000+ (<a href=\"https://earthjustice.org/press/2026/naacp-threatens-lawsuit-over-xais-unpermitted-gas-turbines-in-mississippi\" target=\"_blank\" rel=\"noopener\">Earthjustice, 2026</a>)", "Benefit-per-ton estimates imply roughly 1–3 deaths per 1,000 t NOx (<a href=\"https://www.epa.gov/benmap/estimating-benefit-ton-reducing-directly-emitted-pm25-pm25-precursors-and-ozone-precursors\" target=\"_blank\" rel=\"noopener\">EPA</a>)", "Running since 2024 (assumption)"] },
 
   // ---- GUT ----
   { id: "covid", group: "gut", type: "mixed", title: "COVID & vaccine misinformation",
@@ -425,7 +426,7 @@ const channels = [
       { id: "hl", label: "Years until the effect fades (half-life)", min: 1, max: 20, step: 1, val: 5, show: v => v + " yr", ends: ["1", "", "20"] },
     ],
     compute: (c, W) => -c.cases * c.ifr + c.vent * c.use - c.dh * c.mis * c.xadd * (3 + futYears(W, c.hl)),
-    src: "Alameda County data via PlainSite: ~440 cases among Fremont workers, May–Dec 2020. Working-age infection fatality ~0.1–0.2% (Levin et al. 2020), doubled for onward spread. Musk said he donated over 1,000 machines; many were BiPAP/CPAP. KFF (2022): ~234,000 US COVID deaths among unvaccinated adults were preventable (June 2021–March 2022); the annual toll among the vaccine-hesitant has fallen a lot since. Three past years of X under Musk. Misinformation shares are guesses." },
+    src: ["About 440 cases among Fremont workers, May–Dec 2020 (Alameda County data) (<a href=\"https://www.engadget.com/tesla-fremont-factory-covid-19-cases-200515835.html\" target=\"_blank\" rel=\"noopener\">Engadget, 2021</a>)", "Working-age infection fatality rate about 0.1–0.2% (<a href=\"https://link.springer.com/article/10.1007/s10654-020-00698-1\" target=\"_blank\" rel=\"noopener\">Levin et al., 2020</a>)", "About 234,000 US COVID deaths among unvaccinated adults were preventable (June 2021–March 2022) (<a href=\"https://www.healthsystemtracker.org/brief/covid19-and-other-leading-causes-of-death-in-the-us/\" target=\"_blank\" rel=\"noopener\">KFF, 2022</a>)", "Factory deaths doubled for onward spread (assumption)", "Musk said he donated over 1,000 ventilators; many were BiPAP/CPAP machines", "Three past years of X under Musk; misinformation shares are guesses (assumption)"] },
 
   { id: "ukraine", group: "gut", type: "mixed", title: "Starlink in Ukraine",
     mech: "Starlink kept Ukraine's drones and troops connected, saving Ukrainian soldiers and killing Russian ones.",
@@ -438,7 +439,7 @@ const channels = [
       { id: "wru", label: "Weight on a Russian soldier's life", min: 0, max: 1, step: 0.05, val: 1, show: v => v === 1 ? "equal" : v === 0 ? "zero" : v.toFixed(2), ends: ["Zero", "", "Equal"] },
     ],
     compute: (c, W) => c.ua * c.save - c.ru * c.kill * c.wru,
-    src: "Ukrainian military deaths: ~55,000 (Zelensky, Feb 2026) to 100,000–140,000 (CSIS, Jan 2026). Russian: ~283,000 identified by name (BBC/Mediazona, Oct 2026), thought to be 45–65% of the total. Shares are guesses." },
+    src: ["At least 55,000 Ukrainian soldiers killed (<a href=\"https://kyivindependent.com/at-least-55-000-ukrainian-soldiers-killed-in-russias-war-with-many-more-missing-zelensky-tells-french-media/\" target=\"_blank\" rel=\"noopener\">Zelensky, Feb 2026, via Kyiv Independent</a>)", "Ukraine 100,000–140,000 killed; Russia 275,000–325,000 killed (<a href=\"https://www.csis.org/analysis/russias-grinding-war-ukraine\" target=\"_blank\" rel=\"noopener\">CSIS, Jan 2026</a>)", "Russian deaths identified by name, thought to be 45–65% of the total (<a href=\"https://en.zona.media/article/2026/11/06/casualties_eng-trl\" target=\"_blank\" rel=\"noopener\">BBC/Mediazona</a>)", "Shares of lives saved or lost are guesses (assumption)"] },
 
   // ---- SPECULATIVE ----
   { id: "ai", group: "gut", type: "mixed", title: "AI: OpenAI co-founder, xAI owner",
@@ -448,7 +449,7 @@ const channels = [
       { id: "share", label: "Musk's share of AI progress", min: 0, max: 0.15, step: 0.005, val: 0.03, show: pct1, ends: ["Bystander", "", "Prime mover"] },
     ],
     compute: (c, W) => (c.share * W.aiGood * 2e8 - c.share * (1 - W.aiOffset) * W.aiRisk * POP) * sumF(W, t => t < 75 ? 1 / 75 : 0),
-    src: "World population ~8.2 billion (UN, 2025). The 200M-lives scale for 'AI is a miracle' is an arbitrary anchor, roughly a decade of global cancer deaths." },
+    src: ["World population about 8.2 billion (<a href=\"https://population.un.org/wpp/\" target=\"_blank\" rel=\"noopener\">UN, 2025</a>)", "200M lives as the scale for 'AI is a miracle': an arbitrary anchor, roughly a decade of cancer deaths (assumption)"] },
 
   { id: "mars", group: "save", type: "save", title: "Making life multiplanetary",
     mech: "If Earth ever has to be abandoned, a Mars colony would let humanity survive, and with it every future generation.",
@@ -459,7 +460,7 @@ const channels = [
         show: v => v + " billion" + (v === 13 ? " (≈ a century of births)" : ""), ends: ["1 billion", "", "A trillion"] },
     ],
     compute: (c, W) => Math.pow(10, W.evac) * c.p * c.L * 1e9 * sumF(W, t => t < 500 ? 1 / 500 : 0),
-    src: "~130 million births a year (UN), so 13 billion ≈ a century of births. Pure speculation, priced accordingly." },
+    src: ["About 130 million births a year, so 13 billion is about a century of births (<a href=\"https://population.un.org/wpp/\" target=\"_blank\" rel=\"noopener\">UN</a>)", "Pure speculation, priced accordingly"] },
 ];
 
 // Share of each channel's lives that are American (used by the "American lives only" toggle)
@@ -630,8 +631,8 @@ function build() {
         <div class="dctl">${ch.controls.map(c => slider("d-", ch.id, c, state[ch.id][c.id])).join("")}</div>
         ${DEPS[ch.id].length ? `<h4>Worldview assumptions <span class="mini">(these also change other channels)</span></h4>
         <div class="dctl">${DEPS[ch.id].map(k => slider("d-" + ch.id + "-", "W", world.find(w => w.id === k), state.W[k])).join("")}</div>` : ""}
-        <details class="srcbox"><summary>Sources and more information</summary>
-          <div class="defs"><em>${ch.blurb}</em><br>Source: ${ch.src}</div>
+        <details class="srcbox"><summary>Sources, more information and additional assumptions</summary>
+          <div class="defs"><em>${ch.blurb}</em><ul class="srclist">${ch.src.map(x => `<li>${x}</li>`).join("")}</ul></div>
         </details>
       </div>
     </details>`).join("");
