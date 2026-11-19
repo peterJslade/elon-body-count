@@ -11,7 +11,7 @@
   }
   * { box-sizing: border-box; }
   body { margin: 0; font-family: Georgia, "Times New Roman", serif; background: var(--bg); color: var(--ink); line-height: 1.5; }
-  a, .wdetails > summary { color: var(--ink); text-decoration: underline; text-underline-offset: 2px; }
+  a { color: var(--ink); text-decoration: underline; text-underline-offset: 2px; }
   header { max-width: 1100px; margin: 0 auto; padding: 48px 24px 16px; }
   h1 { font-size: 2.6rem; margin: 0 0 4px; letter-spacing: -0.02em; }
   .sub { font-size: 1.2rem; color: var(--muted); margin: 0 0 18px; font-style: italic; }
@@ -50,8 +50,12 @@
   .presets.pos button[aria-pressed="true"] { background: var(--save); }
   .presets.neg button[aria-pressed="true"] { background: var(--kill); }
   .tagline { font-style: italic; font-family: Georgia, serif; min-height: 1.5em; margin: 2px 0 6px; }
-  .wdetails { margin-top: 10px; }
-  .wdetails > summary { cursor: pointer; font-size: 0.9rem; margin-bottom: 8px; }
+  .wdetails { margin-top: 14px; }
+  .wdetails > summary { list-style: none; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.95rem; font-weight: 600; padding: 9px 18px; border: 2px solid var(--ink); border-radius: 999px; background: var(--card); color: var(--ink); margin-bottom: 10px; }
+  .wdetails > summary::-webkit-details-marker { display: none; }
+  .wdetails > summary:hover { background: var(--ink); color: #fff; }
+  .wdetails > summary .caret { display: inline-block; transition: transform .15s; }
+  .wdetails[open] > summary .caret { transform: rotate(90deg); }
   .world { background: #f1ede4; border-radius: 10px; padding: 16px 18px; }
   .wgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 4px 24px; }
 
@@ -142,10 +146,10 @@
 
   <section class="worldbox">
     <h2>Your worldview</h2>
-    <div class="mini">Pick a worldview persona:</div>
+    <div class="mini">Pick a persona below to change the worldview options, or personalize your worldview.</div>
     <div class="presets" id="presets"></div>
     <div class="tagline" id="tagline"></div>
-    <details class="wdetails"><summary>Or personalize</summary>
+    <details class="wdetails"><summary><span class="caret" aria-hidden="true">▸</span> Personalize your worldview</summary>
       <div class="world"><div class="wgrid" id="world"></div></div>
     </details>
   </section>
