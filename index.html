@@ -631,7 +631,7 @@ function build() {
         ${DEPS[ch.id].length ? `<h4>Worldview assumptions <span class="mini">(these also change other channels)</span></h4>
         <div class="dctl">${DEPS[ch.id].map(k => slider("d-" + ch.id + "-", "W", world.find(w => w.id === k), state.W[k])).join("")}</div>` : ""}
         <details class="srcbox"><summary>Sources, more information and additional assumptions</summary>
-          <div class="defs"><em>${ch.blurb}</em><ul class="srclist">${ch.src.map(x => `<li>${x}</li>`).join("")}</ul></div>
+          <div class="defs"><ul class="srclist">${ch.src.map(x => `<li>${x}</li>`).join("")}</ul></div>
         </details>
       </div>
     </details>`).join("");
