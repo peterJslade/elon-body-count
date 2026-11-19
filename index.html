@@ -515,7 +515,7 @@ const DEPS = {
   usaid: ["blame", "discount"], doge: ["blame", "discount"], ira: ["climate", "chl", "discount"], memphis: ["discount"],
   covid: ["discount"], ukraine: [], ai: ["aiGood", "aiRisk", "aiOffset", "discount"], mars: ["evac", "discount"],
 };
-const openRows = new Set(["fsd"]);      // FSD open on arrival, to show rows expand
+const openRows = new Set();
 
 // ---------- formulas, in words (current values in brackets) ----------
 const sev = W => `Climate severity (×${W.climate.toFixed(1)})`;
