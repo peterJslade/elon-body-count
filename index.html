@@ -592,8 +592,7 @@ function formulaHTML(ch, v) {
     ? `<div class="eq"><span class="op">×</span><span class="term">American share (<strong>${pct1(usShare(ch))}</strong>) <span class="defs">— ${US[ch.id][1]}</span></span></div>` : "";
   return m.lines.map(eqHTML).join("") + us +
     `<div class="eq result-eq"><span class="op">=</span><span class="term"><strong>${Math.abs(v) < 0.5 ? "0" : fmt(v)}</strong></span></div>` +
-    (m.note ? `<div class="defs">${m.note}</div>` : "") +
-    (DEPS[ch.id].includes("discount") ? `<div class="defs">${state.W.discount > 0 ? `Future years discounted at ${state.W.discount}%/yr; past years count in full.` : "No discounting: a death in 2200 counts the same as one today."} Counted to 2525.</div>` : "");
+    (m.note ? `<div class="defs">${m.note}</div>` : "");
 }
 
 // ---------- state & rendering ----------
