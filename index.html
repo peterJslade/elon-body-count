@@ -491,6 +491,7 @@ function lives(ch) {
 const TAGS = {
   "Default": "Middle-of-the-road numbers from the studies cited.",
   "Tesla shareholder": "EVs changed everything, AI is a gift, and Musk barely touched USAID.",
+  "Tech bro": "AI will cure everything, Mars is the backup drive, and climate is an engineering problem someone will solve.",
   "Former USAID officer": "The cuts were Musk's doing, and the climate is worse than you think.",
   "Climate skeptic": "Climate deaths are overblown, and the world would make up the CO₂ anyway.",
   "AI doomer": "AI is net harmful, catastrophe is a coin flip, and Musk's safety talk is just talk.",
@@ -500,6 +501,7 @@ const TAGS = {
 const presets = {          // personas set the worldview dials only; channel sliders stay as you left them
   "Default": {},
   "Tesla shareholder": { climate: 1.5, chl: 200, accel: 8, blame: 0.05, aiGood: 0.6, aiRisk: 0.02, aiOffset: 1.5, evac: -1.3 },
+  "Tech bro": { climate: 0.5, chl: 50, accel: 5, blame: 0.05, aiGood: 1, aiRisk: 0.01, aiOffset: 2, evac: -1 },
   "Former USAID officer": { climate: 1.5, accel: 2, blame: 0.4 },
   "Climate skeptic": { climate: 0.1, chl: 30, accel: 3 },
   "AI doomer": { aiGood: -0.2, aiRisk: 0.4, aiOffset: 0, evac: -0.7 },
