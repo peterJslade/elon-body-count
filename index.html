@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Elon Ledger — Net Lives Saved (or Not)</title>
+<style>
+  :root {
+    --bg: #faf8f4; --ink: #1d1d1f; --muted: #66666b; --card: #ffffff;
+    --line: #e4e0d8; --save: #1f7a5a; --kill: #b3261e; --accent: #e8e2d4;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: Georgia, "Times New Roman", serif; background: var(--bg); color: var(--ink); line-height: 1.5; }
+  a, .wdetails > summary { color: var(--ink); text-decoration: underline; text-underline-offset: 2px; }
+  header { max-width: 1100px; margin: 0 auto; padding: 48px 24px 16px; }
+  h1 { font-size: 2.6rem; margin: 0 0 4px; letter-spacing: -0.02em; }
+  .sub { font-size: 1.2rem; color: var(--muted); margin: 0 0 18px; font-style: italic; }
+  .intro { max-width: 760px; font-size: 1.05rem; }
+  main { max-width: 1100px; margin: 0 auto; padding: 0 24px 40px; }
+  .ui { font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; }
+  .mini { font-size: 0.85rem; color: var(--muted); }
+  button:focus-visible, input:focus-visible, summary:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+  /* Scoreboard (scrolls away) + slim sticky strip */
+  .board { border-bottom: 1px solid var(--line); padding: 14px 0 16px; margin-bottom: 24px; }
+  .board-inner { display: flex; gap: 28px; align-items: center; flex-wrap: wrap; }
+  .net-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+  .net { font-size: 2.6rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .net.pos, .val.pos { color: var(--save); } .net.neg, .val.neg { color: var(--kill); }
+  .verdict { font-style: italic; max-width: 460px; }
+  .strip { position: sticky; top: 0; z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line);
+           display: flex; gap: 16px; align-items: center; justify-content: space-between; padding: 6px 0; }
+  .strip[hidden] { display: none; }
+  .strip .snet { font-weight: 700; font-variant-numeric: tabular-nums; }
+  .scope { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; }
+  .scope button { font: inherit; font-size: 0.85rem; padding: 6px 14px; border: 0; background: var(--card); cursor: pointer; }
+  .scope button[aria-pressed="true"] { background: var(--ink); color: #fff; }
+  .scope button:focus-visible { outline-offset: -3px; }
+  .mug { margin: 0; width: 120px; flex: none; }
+  .mug img { width: 120px; height: 120px; object-fit: cover; border-radius: 8px; display: block; }
+  .mug figcaption { font-size: 0.65rem; color: var(--muted); text-align: center; margin-top: 2px; }
+
+  /* Worldview & personas */
+  .worldbox { margin-bottom: 24px; }
+  .worldbox h2 { font-size: 1.15rem; margin: 0 0 10px; }
+  .presets { display: flex; gap: 8px; flex-wrap: wrap; margin: 6px 0 4px; }
+  .presets button { font: inherit; font-size: 0.85rem; padding: 7px 12px; border: 1px solid var(--line); background: var(--card); border-radius: 999px; cursor: pointer; }
+  .presets button:hover { background: var(--accent); }
+  .presets button[aria-pressed="true"] { color: #fff; border-color: transparent; background: var(--ink); }
+  .presets.pos button[aria-pressed="true"] { background: var(--save); }
+  .presets.neg button[aria-pressed="true"] { background: var(--kill); }
+  .tagline { font-style: italic; font-family: Georgia, serif; min-height: 1.5em; margin: 2px 0 6px; }
+  .wdetails { margin-top: 10px; }
+  .wdetails > summary { cursor: pointer; font-size: 0.9rem; margin-bottom: 8px; }
+  .world { background: #f1ede4; border-radius: 10px; padding: 16px 18px; }
+  .wgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 4px 24px; }
+
+  /* Sliders */
+  .ctl { margin: 8px 0; }
+  .ctl label { display: flex; justify-content: space-between; font-size: 0.82rem; gap: 8px; }
+  .ctl label span.v { font-variant-numeric: tabular-nums; color: var(--muted); text-align: right; }
+  .ctl input[type=range] { width: 100%; accent-color: #444; }
+  .ctl .ends { display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--muted); margin-top: -2px; }
+  .linkbtn { font: inherit; background: none; border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; margin-left: 8px; cursor: pointer; color: var(--ink); }
+  .linkbtn:hover { background: var(--accent); }
+
+  /* Ledger chart */
+  .chart { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px; }
+  .chart h2 { margin: 0 0 12px; font-size: 1.15rem; }
+  .row { display: grid; grid-template-columns: minmax(170px, 250px) 90px 1fr; grid-template-areas: "name val track";
+         align-items: center; gap: 12px; padding: 6px 4px; font-size: 0.88rem; }
+  .row .name { grid-area: name; } .row .val { grid-area: val; } .row .track { grid-area: track; }
+  .caret { display: inline-block; width: 1em; font-size: 0.9rem; transition: transform .15s; }
+  .hint { color: var(--muted); font-size: 0.75rem; margin-left: 6px; opacity: 0; transition: opacity .15s; }
+  details.lrow > summary:hover .hint, details.lrow > summary:focus-visible .hint { opacity: 1; }
+  details.lrow[open] .caret { transform: rotate(90deg); }
+  details.lrow[open] .hint { display: none; }
+  .track { position: relative; height: 18px; }
+  .track::before { content: ""; position: absolute; left: var(--zero, 50%); top: -4px; bottom: -4px; border-left: 1px solid #b9b3a6; }
+  .bar { position: absolute; top: 2px; height: 14px; border-radius: 3px; min-width: 2px; }
+  .bar.pos { background: var(--save); } .bar.neg { background: var(--kill); }
+  .val { font-variant-numeric: tabular-nums; text-align: right; }
+  details.lrow { border-bottom: 1px solid #f0ece3; }
+  details.lrow > summary { list-style: none; cursor: pointer; }
+  details.lrow > summary::-webkit-details-marker { display: none; }
+  details.lrow > summary:hover { background: #faf7f0; }
+  .spark { width: 100%; max-width: 360px; display: block; margin: 6px 0; }
+
+  /* Dropdown contents */
+  .info { background: #faf8f3; border-left: 3px solid var(--line); margin: 4px 0 10px 1.2em; padding: 10px 14px; font-size: 0.88rem; }
+  .info .mech { margin: 2px 0 6px; font-size: 0.98rem; font-family: Georgia, serif; }
+  .info h4 { margin: 12px 0 4px; font-size: 0.78rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+  .info .dctl { max-width: 560px; }
+  .info .defs, .defs { color: var(--muted); font-size: 0.85rem; margin-top: 6px; }
+  .eq { display: grid; grid-template-columns: 1.4em 1fr; row-gap: 3px; margin: 6px 0 10px; font-size: 0.92rem; }
+  .eq .lhs { grid-column: 1 / -1; font-style: italic; color: var(--muted); }
+  .eq .op { text-align: center; color: var(--muted); }
+  .result-eq { font-size: 1rem; margin-top: -4px; }
+
+  footer { max-width: 1100px; margin: 0 auto; padding: 24px; border-top: 1px solid var(--line); font-size: 0.85rem; color: var(--muted); }
+
+  @media (max-width: 640px) {
+    h1 { font-size: 1.9rem; } .net { font-size: 2rem; }
+    .mug, .mug img { width: 72px; height: 72px; }
+    .row { grid-template-columns: 1fr 80px; grid-template-areas: "name name" "track val"; row-gap: 4px; }
+    .info { margin-left: 0; }
+    .hint { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>The Elon Ledger</h1>
+  <p class="sub">One man. Many companies. A rough accounting of who gets to keep breathing.</p>
+  <p class="intro">
+    Some of Musk's ventures plausibly save lives. Some plausibly end them. Some might do either, at a scale
+    that makes the rest a rounding error. The numbers are crude; the assumptions are <em>yours</em>.
+    Slide until it agrees with you.
+  </p>
+</header>
+
+<main class="ui">
+
+  <div class="strip" id="strip" hidden>
+    <span><span class="mini" id="stripLabel">Net lives</span> <span class="snet" id="stripNet">—</span></span>
+    <div class="scope" role="group" aria-label="Whose lives count">
+      <button data-scope-btn="global" aria-pressed="true">Global</button><button data-scope-btn="us" aria-pressed="false">American only</button>
+    </div>
+  </div>
+
+  <div class="board" id="board" aria-live="polite">
+    <div class="board-inner">
+      <figure class="mug" id="mugBox"><img id="mug" src="images/musk_good.jpg" alt="" onerror="document.getElementById('mugBox').hidden = true"
+        onload="document.getElementById('mugBox').hidden = false"><figcaption>AI-generated satire</figcaption></figure>
+      <div>
+        <div class="net-label" id="netLabel">Net lives</div>
+        <div id="net" class="net">—</div>
+      </div>
+      <div class="verdict" id="verdict"></div>
+      <div class="scope" role="group" aria-label="Whose lives count">
+        <button data-scope-btn="global" aria-pressed="true">Global lives</button><button data-scope-btn="us" aria-pressed="false">American lives only</button>
+      </div>
+    </div>
+  </div>
+
+
+  <section class="worldbox">
+    <h2>Your worldview</h2>
+    <div class="mini">Pick a worldview persona:</div>
+    <div class="presets" id="presets"></div>
+    <div class="tagline" id="tagline"></div>
+    <div class="mini">Personas set the worldview only; your channel sliders stay put.</div>
+    <details class="wdetails"><summary>Or personalize</summary>
+      <div class="world"><div class="wgrid" id="world"></div></div>
+    </details>
+  </section>
+
+  <section class="chart">
+    <h2>The ledger, by channel</h2>
+    <p class="mini" style="margin:-6px 0 8px">Click any row for the formula and the dials that drive it. <button class="linkbtn" id="restoreAll">Restore all defaults</button></p>
+    <div id="bars"></div>
+  </section>
+
+</main>
+
+<footer>
+  <p>Built by an agricultural economist, which explains the spreadsheet energy. Not affiliated with anyone, least of all Elon.</p>
+</footer>
+
+<script>
+// ---------- helpers ----------
+const fmt = n => {
+  const a = Math.abs(n), s = n < 0 ? "−" : (n > 0 ? "+" : "");
+  if (a >= 1e9) return s + (a/1e9).toFixed(a >= 1e10 ? 0 : 1) + " billion";
+  if (a >= 1e6) return s + (a/1e6).toFixed(a >= 1e7 ? 0 : 1) + " million";
+  if (a >= 1e4) return s + Math.round(a/1e3).toLocaleString() + "k";
+  return s + Math.round(a).toLocaleString();
+};
+const fmtU = n => fmt(n).replace(/^[+−]/, "");   // magnitude without sign
+const pct = v => Math.round(v*100) + "%";
+const pct1 = v => (v*100).toFixed(1).replace(/\.0$/, "") + "%";
+const num = (v, d = 2) => {            // compact number for formulas
+  const a = Math.abs(v);
+  if (a >= 1e9) return (v/1e9).toFixed(2).replace(/\.?0+$/, "") + "B";
+  if (a >= 1e6) return (v/1e6).toFixed(2).replace(/\.?0+$/, "") + "M";
+  if (a >= 1e4) return Math.round(v).toLocaleString();
+  return (+v.toFixed(d)).toLocaleString();
+};
+
+// ---------- constants & core machinery ----------
+// Every channel = Σ over years (2026 → 2525) of [lives at stake that year × Musk's effect still remaining] × discount weight.
+// Past years count in full; Musk's effect fades as the world without him catches up.
+const TPD = 4434, MCC = 1 / TPD;       // Bressler (2021): one excess death per 4,434 t CO₂, deaths through 2100
+const DPTY = MCC / 75;                  // deaths per tonne per year it stays in the air (Bressler spread over 2026–2100)
+const POP = 8.2e9;                      // world population, UN 2025
+const ROAD = 1.19e6;                    // global road deaths per year, WHO 2023
+const T0 = 2026, HORIZON = 500;         // count 2026–2525
+
+const disc = (W, t) => Math.exp(-W.discount / 100 * t);          // t = years after 2026 (future only)
+const fade = (h, t) => Math.pow(0.5, t / h);                      // share of Musk's effect remaining after t years
+const adopt = (yr, mid, tau) => 1 / (1 + Math.exp(-(yr - mid) / tau));
+function sumF(W, f) { let s = 0; for (let t = 0; t < HORIZON; t++) s += f(t) * disc(W, t + 0.5); return s; }
+const futYears = (W, h) => sumF(W, t => fade(h, t));               // effective future years of a fading effect
+const oddsTxt = p => p >= 0.01 ? pct(p) : "1 in " + num(Math.round(1 / p)).replace("M", " million").replace("B", " billion");
+const hlTxt = h => h >= 500 ? "never" : h + "-yr";
+
+// EV transition: share of the world's driving that is electric, with and without Musk
+const EVMID = 2045, EVTAU = 6;
+const evShare = (yr, W, musk) => adopt(yr, EVMID + (musk ? 0 : W.accel), EVTAU);
+const evGap = (W, t) => evShare(T0 + t + 0.5, W, true) - evShare(T0 + t + 0.5, W, false);
+
+// Climate: CO₂ kept out of the air accumulates as a stock that fades with the worldview half-life W.chl
+function climateLives(W, E, S0 = 0) {
+  const dec = Math.pow(0.5, 1 / W.chl); let S = S0, tot = 0;
+  for (let t = 0; t < HORIZON; t++) { S = S * dec + E(t); tot += S * DPTY * disc(W, t + 0.5); }
+  return tot * W.climate;
+}
+
+// FSD transition
+const fsdGapYears = (c, W) => sumF(W, t => adopt(T0 + t + 0.5, c.mid, 5) - adopt(T0 + t + 0.5, c.mid + c.delta, 5));
+
+// Extra US emissions from the 2025 budget law (REPEAT path: +190 Mt in 2030, +470 Mt in 2035), scaled
+function iraMt(c, t) {
+  const yr = T0 + t; if (t >= c.yrs) return 0;
+  const base = yr <= 2030 ? 190 * (yr - 2025) / 5 : Math.min(470, 190 + 280 * (yr - 2030) / 5);
+  return base * c.mt / 470;
+}
+
+// Two S-curves with the gap shaded
+function sCurveChart(fWith, fWithout, gapLabel, caption) {
+  const W0 = 300, H0 = 90, Y1 = 2100, x = y => (y - T0) / (Y1 - T0) * W0, yv = a => H0 - a * H0;
+  const pts = f => { const p = []; for (let yr = T0; yr <= Y1; yr++) p.push([x(yr), yv(f(yr))]); return p; };
+  const a = pts(fWith), b = pts(fWithout);
+  const line = p => p.map((q, i) => (i ? "L" : "M") + q[0].toFixed(1) + "," + q[1].toFixed(1)).join("");
+  const gap = line(a) + b.slice().reverse().map(q => "L" + q[0].toFixed(1) + "," + q[1].toFixed(1)).join("") + "Z";
+  return `<svg viewBox="-4 -4 ${W0 + 8} ${H0 + 22}" class="spark" role="img" aria-label="${caption}">
+    <path d="${gap}" fill="var(--save)" fill-opacity="0.18" stroke="none"/>
+    <path d="${line(a)}" fill="none" stroke="var(--save)" stroke-width="2"/>
+    <path d="${line(b)}" fill="none" stroke="var(--muted)" stroke-width="2" stroke-dasharray="4 3"/>
+    <text x="0" y="${H0 + 14}" font-size="10" fill="var(--muted)">${T0}</text><text x="${W0}" y="${H0 + 14}" font-size="10" fill="var(--muted)" text-anchor="end">${Y1}</text>
+    <text x="${W0}" y="10" font-size="10" fill="var(--save)" text-anchor="end">— with Musk</text>
+    <text x="${W0}" y="22" font-size="10" fill="var(--muted)" text-anchor="end">- - without</text>
+    <text x="${W0}" y="40" font-size="10" fill="var(--save)" text-anchor="end">${gapLabel}</text></svg>
+    <div class="defs">${caption}</div>`;
+}
+const evChart = W => sCurveChart(yr => evShare(yr, W, true), yr => evShare(yr, W, false),
+  `shaded gap = ${sumF({ discount: 0 }, t => evGap(W, t)).toFixed(1)} years of a fully electric fleet`,
+  "Share of the world's driving that is electric. Both paths get there; Musk gets there sooner.");
+const fsdChart = (c, W) => sCurveChart(yr => adopt(yr, c.mid, 5), yr => adopt(yr, c.mid + c.delta, 5),
+  `shaded gap = ${fsdGapYears(c, { discount: 0 }).toFixed(1)} years of full FSD`,
+  "Share of the world's driving done by FSD. Both paths get there; Musk gets there sooner.");
+
+// ---------- global worldview controls ----------
+const world = [
+  { id: "climate", short: "Climate change", label: "How bad is climate change?", min: 0, max: 3, step: 0.1, val: 1,
+    show: v => "×" + v.toFixed(1) + " — " + (v === 0 ? "a hoax" : v < 0.5 ? "overblown" : v < 1.5 ? "about what the studies say" : v < 2.5 ? "worse than the studies say" : "civilisational"),
+    ends: ["Hoax", "Central estimate", "Catastrophe"] },
+  { id: "chl", short: "Climate catch-up", label: "How fast would the world make up for CO₂ Musk kept out of the air? (half-life)", min: 10, max: 500, step: 10, val: 50,
+    show: v => v >= 500 ? "never — CO₂ is forever" : v + " years", ends: ["Climate targets compensate fast", "", "Never"] },
+  { id: "accel", short: "Tesla's EV head start", label: "Years Tesla sped up the EV transition", min: 0, max: 10, step: 0.5, val: 3,
+    show: v => v + (v === 1 ? " year" : " years"), ends: ["Would've happened anyway", "", "Single-handedly"] },
+  { id: "aiGood", short: "AI for the world", label: "Is AI good for the world? (setting catastrophe aside)", min: -1, max: 1, step: 0.05, val: 0,
+    show: v => (v === 0 ? "a wash" : v < -0.5 ? "a disaster" : v < 0 ? "net harmful" : v < 0.5 ? "net helpful" : "a miracle") + " (" + fmt(v * 2e8) + " lives this century)",
+    ends: ["Net harmful", "Wash", "Cures everything"] },
+  { id: "aiRisk", short: "AI catastrophe risk", label: "Chance of an AI catastrophe this century", min: 0, max: 0.5, step: 0.005, val: 0.05,
+    show: v => pct1(v) + (v === 0 ? " — relax" : v >= 0.3 ? " — start digging the bunker" : ""), ends: ["0%", "", "50%"] },
+  { id: "aiOffset", short: "Musk's AI safety work", label: "Does Musk's AI safety work offset the risk from his AI progress?", min: 0, max: 2, step: 0.05, val: 1,
+    show: v => v === 1 ? "exactly cancels it" : v < 1 ? "offsets " + pct(v) + " of it" : "more than cancels it (" + pct(v) + ")", ends: ["Not at all", "Cancels", "Makes AI safer"] },
+  // stored as log10(probability) so the slider can reach tiny odds
+  { id: "evac", short: "Must leave Earth within 500 yr", label: "Chance humanity must leave Earth within 500 years", min: -9, max: 0, step: 0.25, val: -7,
+    show: v => oddsTxt(Math.pow(10, v)) + (v <= -9 ? " — Earth is fine" : v >= -0.3 ? " — pack a bag" : ""), ends: ["1 in a billion", "", "Certain"] },
+  { id: "discount", short: "Future deaths", label: "Do future deaths count as much as deaths today?", min: 0, max: 5, step: 0.5, val: 0,
+    show: v => v === 0 ? "yes, equally" : v + "%/yr discount", ends: ["Equally", "", "Heavily discounted"] },
+  { id: "blame", short: "Musk's responsibility", label: "Musk's share of responsibility for Trump-administration cuts", min: 0, max: 1, step: 0.05, val: 0.15,
+    show: v => pct(v) + (v === 0 ? " — just a guy with a chainsaw" : v >= 0.9 ? " — he was running the place" : ""),
+    ends: ["None", "", "All of it"] },
+];
+
+// ---------- channels ----------
+const channels = [
+  // ---- SAVED ----
+  { id: "evclimate", group: "save", type: "save", title: "Tesla & the climate",
+    mech: "Tesla made the world go electric a few years sooner, and the CO₂ not emitted in those years means less warming and fewer heat- and climate-related deaths.",
+    blurb: "EVs cut CO₂. What counts is how many years Tesla dragged the industry forward, and how long that CO₂ stays out of the air.",
+    controls: [
+      { id: "cut", label: "Lifecycle CO₂ cut from going electric (world average)", min: 0.2, max: 0.7, step: 0.05, val: 0.5, show: pct, ends: ["Coal grids", "", "Clean grids"] },
+    ],
+    compute: (c, W) => climateLives(W, t => 3.2e9 * c.cut * evGap(W, t)),
+    extra: (c, W) => evChart(W),
+    src: "Passenger cars emit ~3.2 Gt CO₂/yr (IEA). ICCT (2021): EVs cut lifecycle CO₂ 60–68% in the US, 37–45% in China, 19–34% in India. Bressler (2021) mortality cost of carbon, extended past 2100 at the same per-year rate. Fleet half-electric around 2045 with Musk (assumption)." },
+
+  { id: "evair", group: "save", type: "save", title: "Tesla & city air",
+    mech: "Going electric sooner means fewer years of tailpipe soot in cities, and fewer deaths from breathing it.",
+    blurb: "No tailpipe, no soot. Partly offset by power plants, conveniently far from your lungs.",
+    controls: [
+      { id: "base", label: "Deaths a year from car tailpipes (world)", min: 20000, max: 130000, step: 5000, val: 60000, show: v => num(v), ends: ["20k", "", "130k"] },
+      { id: "offset", label: "Share of the gain kept after power-plant emissions", min: 0, max: 1, step: 0.05, val: 0.5, show: pct, ends: ["Coal grid", "", "Clean grid"] },
+    ],
+    compute: (c, W) => sumF(W, t => c.base * Math.pow(0.98, t) * c.offset * evGap(W, t)),
+    extra: (c, W) => evChart(W),
+    src: "Anenberg et al. (2019, ICCT): ~385,000 deaths from transport tailpipe emissions in 2015, mostly from heavy-duty diesel; light-duty cars are perhaps 60k (rough). Baseline falls 2%/yr as emission standards tighten." },
+
+  { id: "energy", group: "save", type: "save", title: "Solar roofs (SolarCity)",
+    mech: "Rooftop solar that wouldn't otherwise exist displaces fossil power, keeping CO₂ out of the air.",
+    blurb: "SolarCity lost money, so Tesla bought it. The panels still cut CO₂. Megapacks are left out: whether grid batteries cut or raise emissions depends on what charges them.",
+    controls: [
+      { id: "gw", label: "Solar installed by SolarCity/Tesla", min: 0, max: 10, step: 0.5, val: 4, show: v => v + " GW", ends: ["0", "", "10 GW"] },
+      { id: "att", label: "Share that wouldn't have been installed otherwise", min: 0, max: 1, step: 0.05, val: 0.3, show: pct, ends: ["None", "", "All"] },
+    ],
+    compute: (c, W) => climateLives(W, () => 0, c.gw * 1e3 * 1300 * 0.4 * 25 * c.att),
+    src: "~4 GW installed (SolarCity/Tesla filings). 1,300 MWh per MW per year (~15% US capacity factor). 0.4 t CO₂ per MWh displaced (US grid average, EIA). 25-year panel life. Bressler (2021) mortality cost of carbon." },
+
+  { id: "fsd", group: "save", type: "mixed", title: "Full Self-Driving",
+    mech: "If self-driving cars crash less than people do, getting them a few years sooner saves the lives lost on the roads in between.",
+    blurb: "1.2 million people die on the world's roads every year. Self-driving will probably arrive with or without Musk. The question is how much sooner.",
+    controls: [
+      { id: "s", label: "Self-driving vs. human: deaths per mile", min: -0.5, max: 0.9, step: 0.05, val: 0.4,
+        show: v => (v >= 0 ? pct(v) + " fewer" : pct(-v) + " more"), ends: ["Deathtrap", "Same", "Robot chauffeur"] },
+      { id: "mid", label: "Year robots do half the world's driving (with Musk)", min: 2030, max: 2090, step: 1, val: 2045, show: v => v, ends: ["2030", "", "2090"] },
+      { id: "delta", label: "Years later without Musk", min: 0, max: 25, step: 0.5, val: 3,
+        show: v => v === 0 ? "no difference" : v + " yr", ends: ["Same time", "", "25 yr later"] },
+    ],
+    compute: (c, W) => ROAD * c.s * fsdGapYears(c, W) - 13,
+    extra: (c, W) => fsdChart(c, W),
+    src: "WHO (2023): 1.19 million road deaths a year (held constant). NHTSA (2024) linked Autopilot to at least 13 fatal crashes. S-curve: 10%→90% adoption takes ~22 years." },
+
+  { id: "starlink", group: "save", type: "save", title: "Starlink: disasters & the remote",
+    mech: "When disasters knock out phone towers, satellite internet lets rescuers coordinate and victims call for help.",
+    blurb: "Internet after hurricanes and earthquakes, when the towers are down. Real, uncounted.",
+    controls: [
+      { id: "prev", label: "Share of disaster deaths preventable with emergency comms", min: 0, max: 0.1, step: 0.005, val: 0.02, show: pct1, ends: ["0%", "", "10%"] },
+      { id: "sh", label: "Starlink's share of emergency connectivity", min: 0, max: 1, step: 0.05, val: 0.2, show: pct, ends: ["None", "", "All of it"] },
+      { id: "hl", label: "Years until rivals catch up (half-life)", min: 1, max: 30, step: 1, val: 10, show: v => v + " yr", ends: ["1", "", "30"] },
+    ],
+    compute: (c, W) => 15000 * c.prev * c.sh * (5 + futYears(W, c.hl)),
+    src: "Our World in Data (EM-DAT): disasters kill 10,000–20,000 people a year on average. Starlink has served responders since ~2021 (five past years). Shares are guesses." },
+
+  { id: "launch", group: "save", type: "save", title: "Cheap rockets, more satellites",
+    mech: "Cheaper launches mean more weather satellites, better forecasts and earlier evacuations.",
+    blurb: "Falcon 9 cut launch costs roughly tenfold. More weather satellites, better forecasts, earlier evacuations. Indirect, not zero.",
+    controls: [
+      { id: "avert", label: "Share of weather-disaster deaths averted by extra satellite data", min: 0, max: 0.1, step: 0.005, val: 0.02, show: pct1, ends: ["0%", "", "10%"] },
+      { id: "sh", label: "Share of that extra data due to cheap launch", min: 0, max: 1, step: 0.05, val: 0.3, show: pct, ends: ["None", "", "All"] },
+      { id: "hl", label: "Years until rivals match SpaceX's prices (half-life)", min: 1, max: 30, step: 1, val: 10, show: v => v + " yr", ends: ["1", "", "30"] },
+    ],
+    compute: (c, W) => 18500 * c.avert * c.sh * (10 + futYears(W, c.hl)),
+    src: "WMO Atlas of Mortality (2021): ~185,000 deaths from weather, climate and water hazards in 2010–2019, ~18,500 a year. Ten past years of cheap launch. Shares are guesses." },
+
+  { id: "neuralink", group: "save", type: "save", title: "Neuralink",
+    mech: "Brain implants restore some independence to paralysed patients; the quality-of-life gain is converted into life-equivalents.",
+    blurb: "About twenty patients moving cursors with their minds. Life-changing, not life-saving, so converted to life-equivalents via QALYs.",
+    controls: [
+      { id: "n", label: "Patients implanted", min: 0, max: 100, step: 1, val: 21, show: v => v, ends: ["0", "", "100"] },
+      { id: "q", label: "Quality-of-life gain per patient (QALYs per year)", min: 0, max: 1, step: 0.05, val: 0.3, show: v => v.toFixed(2), ends: ["None", "", "Full health"] },
+      { id: "yrs", label: "Years of benefit per patient", min: 1, max: 40, step: 1, val: 10, show: v => v + " yr", ends: ["1", "", "40"] },
+    ],
+    compute: (c, W) => c.n * c.q * c.yrs / 40,
+    src: "Neuralink reported 21 trial participants in January 2026 (Reuters). Health economists' rule of thumb: ~40 discounted QALYs per statistical life." },
+
+  { id: "kids", group: "save", type: "save", title: "Lives created, personally",
+    mech: "Musk has 14 children. That's it; that's the mechanism.",
+    blurb: "Musk says falling birth rates threaten civilisation, and has acted accordingly. Not lives <em>saved</em>, but the ledger isn't fussy.",
+    controls: [
+      { id: "n", label: "Children fathered (publicly reported)", min: 0, max: 30, step: 1, val: 14,
+        show: v => v + (v === 14 ? " (as last reported)" : ""), ends: ["0", "", "30, give it time"] },
+    ],
+    compute: (c, W) => c.n,
+    src: "Publicly reported count, 2025: 14 children with four mothers. Almost certainly out of date." },
+
+  // ---- KILLED ----
+  { id: "usaid", group: "kill", type: "kill", title: "Shutting down USAID",
+    mech: "Closing USAID cut HIV drugs, malaria nets and child nutrition programs, and people die until someone else fills the gap.",
+    blurb: "DOGE put USAID 'in the wood chipper.' The Lancet projects ~14 million extra deaths by 2030 if the cuts hold. How much is on Musk is your call; how long until others fill the gap is another.",
+    controls: [
+      { id: "stick", label: "Share of the cuts that stick", min: 0, max: 1, step: 0.05, val: 0.5, show: pct, ends: ["All reversed", "", "Permanent"] },
+      { id: "hl", label: "Years until other donors fill half the gap", min: 1, max: 30, step: 1, val: 5, show: v => v + " yr", ends: ["1", "", "30"] },
+    ],
+    compute: (c, W) => -2.8e6 * c.stick * W.blame * (1 + futYears(W, c.hl)),
+    src: "Cavalcanti et al. (2025), The Lancet: ~14 million extra deaths by 2030 under full defunding (~2.8M a year). Cuts began in 2025 (one past year). See also the Boston University Impact Counter." },
+
+  { id: "doge", group: "kill", type: "kill", title: "The rest of DOGE",
+    mech: "Cutting US public-health funding removes programs that were saving lives at a known cost per life.",
+    blurb: "NIH and CDC grants cancelled. An economist's way to count it: dollars cut ÷ dollars per life that spending used to save.",
+    controls: [
+      { id: "cut", label: "Domestic health funding cut per year", min: 0, max: 20, step: 0.5, val: 3, show: v => "$" + v + "B", ends: ["$0", "", "$20B"] },
+      { id: "cpl", label: "Cost per life saved by that spending", min: 1, max: 20, step: 0.5, val: 5, show: v => "$" + v + "M", ends: ["$1M", "", "$20M"] },
+      { id: "hl", label: "Years until the funding is restored (half-life)", min: 1, max: 30, step: 1, val: 5, show: v => v + " yr", ends: ["1", "", "30"] },
+    ],
+    compute: (c, W) => -(c.cut * 1e9 / (c.cpl * 1e6)) * W.blame * (1 + futYears(W, c.hl)),
+    src: "NIH grant terminations (~$2–3B, reported). The ~$11B CDC clawback (March 2025) was COVID-era money, ~80% restored in states that sued (KFF Health News), so mostly excluded. US public-health spending saves a life for roughly $1–10M." },
+
+  { id: "ira", group: "kill", type: "kill", title: "Buying an election, losing the clean-energy credits",
+    mech: "Musk's money helped elect a government that repealed clean-energy credits, so the US emits more CO₂, which means more climate deaths.",
+    blurb: "Spent ~$291M electing a government that repealed the clean-energy tax credits, then called the bill a 'disgusting abomination.'",
+    controls: [
+      { id: "mt", label: "Extra US emissions by 2035 from the 2025 budget law", min: 0, max: 800, step: 10, val: 470, show: v => v + " Mt/yr", ends: ["0", "", "800"] },
+      { id: "yrs", label: "Years the law stays in force", min: 1, max: 30, step: 1, val: 10, show: v => v + " yr", ends: ["1", "", "30"] },
+      { id: "elec", label: "Musk's share of the election outcome", min: 0, max: 0.2, step: 0.005, val: 0.02, show: pct1, ends: ["None", "", "Kingmaker"] },
+    ],
+    compute: (c, W) => -c.elec * climateLives(W, t => iraMt(c, t) * 1e6),
+    src: "REPEAT Project (Princeton, 2025): +190 Mt/yr in 2030, +470 Mt/yr by 2035; Rhodium: +315–574 Mt. Musk gave ~$291M (OpenSecrets) of roughly $15–16B in 2024 election spending ≈ 2%." },
+
+  { id: "memphis", group: "kill", type: "kill", title: "xAI's gas turbines (Memphis & Southaven)",
+    mech: "Gas turbines powering xAI emit nitrogen oxides, which form fine particles and smog that kill people downwind.",
+    blurb: "Unpermitted gas turbines powering Grok, in neighbourhoods already leading the county in asthma.",
+    controls: [
+      { id: "nox", label: "NOx emitted", min: 0, max: 8000, step: 100, val: 4500, show: v => v.toLocaleString() + " t/yr", ends: ["0", "", "8,000"] },
+      { id: "dpt", label: "Deaths per 1,000 t of NOx", min: 0, max: 5, step: 0.25, val: 1.5, show: v => v, ends: ["0", "", "5"] },
+      { id: "yrs", label: "Years the turbines run in total", min: 2, max: 20, step: 1, val: 5, show: v => v + " yr", ends: ["2", "", "20"] },
+    ],
+    compute: (c, W) => -c.nox * c.dpt / 1000 * (2 + sumF(W, t => t < c.yrs - 2 ? 1 : 0)),
+    src: "SELC: Memphis turbines ~1,200–2,100 t NOx/yr; Southaven ~2,500 t, possibly 4,000+ (SELC/Earthjustice, 2026). EPA benefit-per-ton estimates imply roughly 1–3 deaths per 1,000 t NOx. Running since 2024." },
+
+  // ---- GUT ----
+  { id: "covid", group: "gut", type: "mixed", title: "COVID & vaccine misinformation",
+    mech: "Three effects: keeping Fremont open spread COVID, donated machines may have helped patients, and looser rules on X spread vaccine misinformation.",
+    blurb: "Reopened the Fremont plant against county orders. Donated ventilators, some of them CPAP machines. Then bought Twitter and loosened the rules on vaccine misinformation, after the vaccine rollout had peaked. His 'panic is dumb' tweets aren't counted; nobody knows how.",
+    controls: [
+      { id: "cases", label: "COVID cases among Fremont workers, 2020", min: 0, max: 2000, step: 10, val: 440, show: v => v, ends: ["0", "", "2,000"] },
+      { id: "ifr", label: "Deaths per case, including onward spread", min: 0, max: 0.03, step: 0.001, val: 0.004, show: pct1, ends: ["0%", "", "3%"] },
+      { id: "vent", label: "Ventilators and CPAPs donated", min: 0, max: 3000, step: 50, val: 1000, show: v => v.toLocaleString(), ends: ["0", "", "3,000"] },
+      { id: "use", label: "Lives saved per donated machine", min: 0, max: 0.2, step: 0.005, val: 0.01, show: v => v.toFixed(3), ends: ["0", "", "0.2"] },
+      { id: "dh", label: "US deaths a year among the vaccine-hesitant that vaccines would prevent", min: 0, max: 50000, step: 1000, val: 10000, show: v => v.toLocaleString(), ends: ["0", "", "50k"] },
+      { id: "mis", label: "Share of hesitancy driven by online misinformation", min: 0, max: 0.5, step: 0.01, val: 0.1, show: pct, ends: ["0%", "", "50%"] },
+      { id: "xadd", label: "Extra misinformation X added under Musk (share of online total)", min: 0, max: 0.5, step: 0.01, val: 0.1, show: pct, ends: ["0%", "", "50%"] },
+      { id: "hl", label: "Years until the effect fades (half-life)", min: 1, max: 20, step: 1, val: 5, show: v => v + " yr", ends: ["1", "", "20"] },
+    ],
+    compute: (c, W) => -c.cases * c.ifr + c.vent * c.use - c.dh * c.mis * c.xadd * (3 + futYears(W, c.hl)),
+    src: "Alameda County data via PlainSite: ~440 cases among Fremont workers, May–Dec 2020. Working-age infection fatality ~0.1–0.2% (Levin et al. 2020), doubled for onward spread. Musk said he donated over 1,000 machines; many were BiPAP/CPAP. KFF (2022): ~234,000 US COVID deaths among unvaccinated adults were preventable (June 2021–March 2022); the annual toll among the vaccine-hesitant has fallen a lot since. Three past years of X under Musk. Misinformation shares are guesses." },
+
+  { id: "ukraine", group: "gut", type: "mixed", title: "Starlink in Ukraine",
+    mech: "Starlink kept Ukraine's drones and troops connected, saving Ukrainian soldiers and killing Russian ones.",
+    blurb: "Kept Ukraine's army online. The same drones that saved Ukrainian soldiers killed Russian ones. Whose deaths count is a dial.",
+    controls: [
+      { id: "ua", label: "Ukrainian military deaths", min: 0, max: 300000, step: 5000, val: 100000, show: v => v.toLocaleString(), ends: ["0", "", "300k"] },
+      { id: "save", label: "Share of those deaths Starlink prevented", min: 0, max: 0.2, step: 0.005, val: 0.05, show: pct1, ends: ["0%", "", "20%"] },
+      { id: "ru", label: "Russian military deaths", min: 0, max: 800000, step: 10000, val: 450000, show: v => v.toLocaleString(), ends: ["0", "", "800k"] },
+      { id: "kill", label: "Share caused by Starlink-enabled strikes", min: 0, max: 0.1, step: 0.005, val: 0.02, show: pct1, ends: ["0%", "", "10%"] },
+      { id: "wru", label: "Weight on a Russian soldier's life", min: 0, max: 1, step: 0.05, val: 1, show: v => v === 1 ? "equal" : v === 0 ? "zero" : v.toFixed(2), ends: ["Zero", "", "Equal"] },
+    ],
+    compute: (c, W) => c.ua * c.save - c.ru * c.kill * c.wru,
+    src: "Ukrainian military deaths: ~55,000 (Zelensky, Feb 2026) to 100,000–140,000 (CSIS, Jan 2026). Russian: ~283,000 identified by name (BBC/Mediazona, Oct 2026), thought to be 45–65% of the total. Shares are guesses." },
+
+  // ---- SPECULATIVE ----
+  { id: "ai", group: "gut", type: "mixed", title: "AI: OpenAI co-founder, xAI owner",
+    mech: "Musk speeds up AI, so he gets a share of the credit for its benefits and a share of the blame for its risks.",
+    blurb: "Co-founded OpenAI for safety, sued it, built Grok. He owns a share of AI's benefits and its risks; how much his safety work offsets is a worldview dial.",
+    controls: [
+      { id: "share", label: "Musk's share of AI progress", min: 0, max: 0.15, step: 0.005, val: 0.03, show: pct1, ends: ["Bystander", "", "Prime mover"] },
+    ],
+    compute: (c, W) => (c.share * W.aiGood * 2e8 - c.share * (1 - W.aiOffset) * W.aiRisk * POP) * sumF(W, t => t < 75 ? 1 / 75 : 0),
+    src: "World population ~8.2 billion (UN, 2025). The 200M-lives scale for 'AI is a miracle' is an arbitrary anchor, roughly a decade of global cancer deaths." },
+
+  { id: "mars", group: "save", type: "save", title: "Making life multiplanetary",
+    mech: "If Earth ever has to be abandoned, a Mars colony would let humanity survive, and with it every future generation.",
+    blurb: "If Earth must be abandoned, a Mars colony saves the species, not the people. The payoff is every future life that would otherwise never happen. Longtermists say that's astronomical. They mean it literally.",
+    controls: [
+      { id: "p", label: "Chance SpaceX is the reason the lifeboat exists in time", min: 0, max: 0.5, step: 0.01, val: 0.1, show: pct, ends: ["Someone else would've done it", "", "Only SpaceX"] },
+      { id: "L", label: "Future lives at stake if the species survives", min: 1, max: 1000, step: 1, val: 13,
+        show: v => v + " billion" + (v === 13 ? " (≈ a century of births)" : ""), ends: ["1 billion", "", "A trillion"] },
+    ],
+    compute: (c, W) => Math.pow(10, W.evac) * c.p * c.L * 1e9 * sumF(W, t => t < 500 ? 1 / 500 : 0),
+    src: "~130 million births a year (UN), so 13 billion ≈ a century of births. Pure speculation, priced accordingly." },
+];
+
+// Share of each channel's lives that are American (used by the "American lives only" toggle)
+const US = {
+  evclimate: [0.02, "US share of global climate deaths (~4% of population, lower vulnerability)"],
+  evair:     [0.06, "US share of light-duty tailpipe-pollution deaths"],
+  energy:    [0.02, "US share of global climate deaths"],
+  fsd:       [0.034, "US share of world road deaths (40k of 1.19M)"],
+  starlink:  [0.05, "US share of global disaster deaths"],
+  launch:    [0.05, "US share of global weather-disaster deaths"],
+  neuralink: [1,    "patients are in the US"],
+  kids:      [1,    "all born American, as far as the tabloids know"],
+  usaid:     [0,    "USAID deaths are, by design, not American"],
+  doge:      [1,    "domestic agencies"],
+  ira:       [0.02, "US share of global climate deaths: the emissions are American, the deaths mostly aren't"],
+  memphis:   [1,    "Memphis"],
+  covid:     [1,    "Fremont and US vaccine hesitancy"],
+  ukraine:   [0,    "not American"],
+  ai:        [0.04, "US share of world population"],
+  mars:      [0.04, "US share of world population"],
+};
+function usShare(ch) { return US[ch.id][0]; }
+function lives(ch) {
+  const g = ch.compute(state[ch.id], state.W);
+  return state.scope === "us" ? g * usShare(ch) : g;
+}
+
+const TAGS = {
+  "Default": "Middle-of-the-road numbers from the studies cited.",
+  "Tesla shareholder": "EVs changed everything, AI is a gift, and Musk barely touched USAID.",
+  "Former USAID officer": "The cuts were Musk's doing, and the climate is worse than you think.",
+  "Climate skeptic": "Climate deaths are overblown, and the world would make up the CO₂ anyway.",
+  "AI doomer": "AI is net harmful, catastrophe is a coin flip, and Musk's safety talk is just talk.",
+  "Effective altruist": "CO₂ is forever, AI risk is real, and the far future counts.",
+  "Cynical economist": "A 3% discount rate, and Tesla only sped things up a year.",
+};
+const presets = {          // personas set the worldview dials only; channel sliders stay as you left them
+  "Default": {},
+  "Tesla shareholder": { climate: 1.5, chl: 200, accel: 8, blame: 0.05, aiGood: 0.6, aiRisk: 0.02, aiOffset: 1.5, evac: -1.3 },
+  "Former USAID officer": { climate: 1.5, accel: 2, blame: 0.4 },
+  "Climate skeptic": { climate: 0.1, chl: 30, accel: 3 },
+  "AI doomer": { aiGood: -0.2, aiRisk: 0.4, aiOffset: 0, evac: -0.7 },
+  "Effective altruist": { chl: 500, blame: 0.2, aiGood: 0.5, aiRisk: 0.15, aiOffset: 0.8, evac: -1.3 },
+  "Cynical economist": { accel: 1, discount: 3, aiGood: 0.1 },
+};
+
+// Which worldview dials feed each channel
+const DEPS = {
+  evclimate: ["accel", "climate", "chl", "discount"], evair: ["accel", "discount"], energy: ["climate", "chl", "discount"],
+  fsd: ["discount"], starlink: ["discount"], launch: ["discount"], neuralink: [], kids: [],
+  usaid: ["blame", "discount"], doge: ["blame", "discount"], ira: ["climate", "chl", "discount"], memphis: ["discount"],
+  covid: ["discount"], ukraine: [], ai: ["aiGood", "aiRisk", "aiOffset", "discount"], mars: ["evac", "discount"],
+};
+const openRows = new Set(["fsd"]);      // FSD open on arrival, to show rows expand
+
+// ---------- formulas, in words (current values in brackets) ----------
+const sev = W => `Climate severity (×${W.climate.toFixed(1)})`;
+const stockTxt = W => `CO₂ kept out of the air (fades with a ${hlTxt(W.chl)} half-life) × Deaths per tonne-year (1 per 4,434 t over 75 yr) × ${sev(W)}`;
+const yrsTxt = (past, W, h, what) => `Years it lasts (${past} so far + ${futYears(W, h).toFixed(1)} ahead; ${what} half-life ${h} yr)`;
+const MATH = {
+  evclimate: (c, W) => ({ lines: [
+      `CO₂ avoided in a year = Car CO₂ without EVs (3.2 Gt) × Lifecycle cut from going electric (${pct(c.cut)}) × Electric share of driving due to Musk (see graph)`,
+      `Lives saved = ${stockTxt(W)}`] }),
+  evair: (c, W) => ({ lines: [
+      `Lives saved in a year = Car tailpipe deaths (${num(c.base)}, falling 2%/yr) × Share kept after power plants (${pct(c.offset)}) × Electric share of driving due to Musk (see graph)`] }),
+  energy: (c, W) => ({ lines: [
+      `CO₂ avoided = Solar installed (${c.gw} GW) × Output per GW-year (1.3 TWh) × CO₂ per MWh displaced (0.4 t) × Panel life (25 yr) × Share due to Tesla (${pct(c.att)})`,
+      `Lives saved = ${stockTxt(W)}`] }),
+  fsd: (c, W) => ({ lines: [
+      `Lives saved = Road deaths without FSD (1.19M a year) × Lives saved by FSD (${pct(c.s)}) × FSD share of driving due to Musk (${fsdGapYears(c, W).toFixed(1)} years' worth — see figure) − Autopilot crash deaths so far (13)`] }),
+  starlink: (c, W) => ({ lines: [
+      `Lives saved in a year = Disaster deaths (15,000) × Share preventable with emergency comms (${pct1(c.prev)}) × Starlink's share of emergency connectivity (${pct(c.sh)})`,
+      `Lives saved = Lives a year (${num(15000 * c.prev * c.sh)}) × ${yrsTxt(5, W, c.hl, "rivals catch up,")}`] }),
+  launch: (c, W) => ({ lines: [
+      `Lives saved in a year = Weather-disaster deaths (18,500) × Share averted by extra satellite data (${pct1(c.avert)}) × Share due to cheap launch (${pct(c.sh)})`,
+      `Lives saved = Lives a year (${num(18500 * c.avert * c.sh)}) × ${yrsTxt(10, W, c.hl, "rivals match prices,")}`] }),
+  neuralink: (c, W) => ({ lines: [`Life-equivalents = Patients (${c.n}) × QALY gain per patient-year (${c.q.toFixed(2)}) × Years of benefit (${c.yrs}) ÷ QALYs per statistical life (40)`] }),
+  kids: (c, W) => ({ lines: [`Lives = Children fathered (${c.n})`], note: "Grandchildren not yet modelled." }),
+  usaid: (c, W) => ({ lines: [
+      `Lives lost in a year = Deaths from full defunding (2.8M, Lancet) × Share of cuts that stick (${pct(c.stick)}) × Musk's share of responsibility (${pct(W.blame)})`,
+      `Lives lost = Deaths a year (${num(2.8e6 * c.stick * W.blame)}) × ${yrsTxt(1, W, c.hl, "donors fill the gap,")}`] }),
+  doge: (c, W) => ({ lines: [
+      `Lives lost in a year = Health funding cut ($${c.cut}B a year) ÷ Cost per life saved ($${c.cpl}M) × Musk's share of responsibility (${pct(W.blame)})`,
+      `Lives lost = Deaths a year (${num(c.cut * 1e3 / c.cpl * W.blame)}) × ${yrsTxt(1, W, c.hl, "funding restored,")}`] }),
+  ira: (c, W) => ({ lines: [
+      `Extra CO₂ in a year = Extra US emissions from the law (rising to ${c.mt} Mt/yr by 2035, for ${c.yrs} years) × Musk's share of the election (${pct1(c.elec)})`,
+      `Lives lost = ${stockTxt(W)}`] }),
+  memphis: (c, W) => ({ lines: [`Lives lost = NOx emitted (${c.nox.toLocaleString()} t/yr) × Deaths per tonne of NOx (${(c.dpt / 1000).toFixed(4)}) × Years running (${c.yrs})`] }),
+  covid: (c, W) => ({ lines: [
+      `Harm = Fremont cases (${c.cases}) × Deaths per case incl. onward spread (${pct1(c.ifr)})`,
+      `Help = Machines donated (${c.vent.toLocaleString()}) × Lives saved per machine (${c.use.toFixed(3)})`,
+      `Misinformation a year = Preventable US deaths among the vaccine-hesitant (${c.dh.toLocaleString()}) × Share driven by online misinformation (${pct(c.mis)}) × X's added share under Musk (${pct(c.xadd)})`,
+      `Misinformation = Deaths a year (${num(c.dh * c.mis * c.xadd)}) × ${yrsTxt(3, W, c.hl, "effect fades,")}`,
+      `Lives = Help (${fmtU(c.vent * c.use)}) − Harm (${fmtU(c.cases * c.ifr)}) − Misinformation (${fmtU(c.dh * c.mis * c.xadd * (3 + futYears(W, c.hl)))})`] }),
+  ukraine: (c, W) => ({ lines: [
+      `Saved = Ukrainian military deaths (${c.ua.toLocaleString()}) × Share Starlink prevented (${pct1(c.save)})`,
+      `Killed = Russian military deaths (${c.ru.toLocaleString()}) × Share from Starlink-enabled strikes (${pct1(c.kill)}) × Weight on a Russian life (${c.wru.toFixed(2)})`,
+      `Lives = Saved (${fmtU(c.ua * c.save)}) − Killed (${fmtU(c.ru * c.kill * c.wru)})`] }),
+  ai: (c, W) => ({ lines: [
+      `Benefit = Musk's share of AI progress (${pct1(c.share)}) × AI's benefit to the world (${num(W.aiGood * 2e8)} lives)`,
+      `Risk = Musk's share of AI progress (${pct1(c.share)}) × (1 − Share his safety work offsets (${pct(W.aiOffset)})) × Chance of AI catastrophe (${pct1(W.aiRisk)}) × World population (8.2B)`,
+      `Lives = Benefit (${fmtU(c.share * W.aiGood * 2e8)}) − Risk (${fmt(c.share * (1 - W.aiOffset) * W.aiRisk * POP)})`],
+    note: "At 100% offset, his safety work exactly cancels the risk from his progress. Spread over the next 75 years." }),
+  mars: (c, W) => ({ lines: [`Lives = Chance Earth must be evacuated (${oddsTxt(Math.pow(10, W.evac))}) × Chance SpaceX is decisive (${pct(c.p)}) × Future lives at stake (${c.L}B)`],
+    note: "Spread over the next 500 years." }),
+};
+
+// Lay an equation out one term per line: "Lives =" then "× term", "÷ term", ...
+function splitTerms(s) {            // split on top-level × ÷ − (ignores operators inside brackets)
+  const out = []; let depth = 0, buf = "", op = "";
+  for (let i = 0; i < s.length; i++) {
+    const ch = s[i];
+    if (ch === "(") depth++;
+    if (ch === ")") depth--;
+    if (depth === 0 && (ch === "×" || ch === "÷" || (ch === "−" && buf.trim())) && s[i-1] === " " && s[i+1] === " ") {
+      out.push([op, buf.trim()]); op = ch; buf = ""; i++; continue;
+    }
+    buf += ch;
+  }
+  out.push([op, buf.trim()]);
+  return out;
+}
+const boldVal = t => t.replace(/\(([^()]*)\)\s*$/, "(<strong>$1</strong>)");
+function eqHTML(line) {
+  const m = line.match(/^(.*?(?: =|:))\s+(.*)$/);
+  const lhs = m ? m[1] : "", rhs = m ? m[2] : line;
+  return `<div class="eq">${lhs ? `<div class="lhs">${lhs}</div>` : ""}` +
+    splitTerms(rhs).map(([op, t]) => `<span class="op">${op}</span><span class="term">${boldVal(t)}</span>`).join("") + `</div>`;
+}
+function formulaHTML(ch, v) {
+  const m = MATH[ch.id](state[ch.id], state.W);
+  const us = state.scope === "us"
+    ? `<div class="eq"><span class="op">×</span><span class="term">American share (<strong>${pct1(usShare(ch))}</strong>) <span class="defs">— ${US[ch.id][1]}</span></span></div>` : "";
+  return m.lines.map(eqHTML).join("") + us +
+    `<div class="eq result-eq"><span class="op">=</span><span class="term"><strong>${Math.abs(v) < 0.5 ? "0" : fmt(v)}</strong></span></div>` +
+    (m.note ? `<div class="defs">${m.note}</div>` : "") +
+    (DEPS[ch.id].includes("discount") ? `<div class="defs">${state.W.discount > 0 ? `Future years discounted at ${state.W.discount}%/yr; past years count in full.` : "No discounting: a death in 2200 counts the same as one today."} Counted to 2525.</div>` : "");
+}
+
+// ---------- state & rendering ----------
+const state = { W: {}, scope: "global" };
+world.forEach(w => state.W[w.id] = w.val);
+channels.forEach(ch => { state[ch.id] = {}; ch.controls.forEach(c => state[ch.id][c.id] = c.val); });
+const defaults = JSON.parse(JSON.stringify(state));
+
+function slider(prefix, scope, c, value) {
+  const id = prefix + scope + "-" + c.id;
+  return `<div class="ctl">
+    <label for="${id}">${c.label}<span class="v" data-vs="${scope}" data-vk="${c.id}">${c.show(value)}</span></label>
+    <input type="range" id="${id}" min="${c.min}" max="${c.max}" step="${c.step}" value="${value}" data-scope="${scope}" data-key="${c.id}" aria-valuetext="${c.show(value)}">
+    ${c.ends && c.ends.some(Boolean) ? `<div class="ends"><span>${c.ends[0]}</span><span>${c.ends[1]}</span><span>${c.ends[2]}</span></div>` : ""}
+  </div>`;
+}
+
+function build() {
+  document.getElementById("world").innerHTML = world.map(w => `<div>${slider("", "W", w, state.W[w.id])}</div>`).join("");
+  // ledger rows: built once, then updated in place so sliders inside them can be dragged
+  document.getElementById("bars").innerHTML = channels.map(ch => `
+    <details class="lrow" id="row-${ch.id}" data-id="${ch.id}"${openRows.has(ch.id) ? " open" : ""}>
+      <summary class="row"><span class="name"><span class="caret" aria-hidden="true">▸</span> ${ch.title}<span class="hint">details</span></span>
+        <span class="val" id="bv-${ch.id}"></span>
+        <div class="track" aria-hidden="true"><div class="bar" id="b-${ch.id}"></div></div></summary>
+      <div class="info">
+        <p class="mech">${ch.mech}</p>
+        <h4>Formula</h4>
+        <div id="bf-${ch.id}"></div>
+        ${ch.extra ? `<div id="bx-${ch.id}"></div>` : ""}
+        <h4>Sliders for this channel</h4>
+        <div class="dctl">${ch.controls.map(c => slider("d-", ch.id, c, state[ch.id][c.id])).join("")}</div>
+        ${DEPS[ch.id].length ? `<h4>Worldview dials <span class="mini">(these move other channels too)</span></h4>
+        <div class="dctl">${DEPS[ch.id].map(k => slider("d-" + ch.id + "-", "W", world.find(w => w.id === k), state.W[k])).join("")}</div>` : ""}
+        <div class="defs"><em>${ch.blurb}</em><br>Source: ${ch.src}</div>
+      </div>
+    </details>`).join("");
+
+  document.getElementById("presets").innerHTML = Object.keys(presets).map(k => `<button data-preset="${k}" aria-pressed="${k === persona}" title="${TAGS[k]}">${k}</button>`).join("");
+  document.querySelectorAll("[data-preset]").forEach(b => {
+    b.addEventListener("mouseenter", () => showTag(b.dataset.preset));
+    b.addEventListener("focus", () => showTag(b.dataset.preset));
+    b.addEventListener("mouseleave", () => showTag(persona));
+  });
+
+  document.querySelectorAll("input[type=range]").forEach(el => {
+    el.addEventListener("input", e => {
+      const t = e.target, sc = t.dataset.scope, k = t.dataset.key;
+      state[sc][k] = parseFloat(t.value);
+      if (persona && sc === "W") { persona = null; showTag(null); document.querySelectorAll("[data-preset]").forEach(b => b.setAttribute("aria-pressed", "false")); }
+      document.querySelectorAll(`input[data-scope="${sc}"][data-key="${k}"]`).forEach(o => { if (o !== t) o.value = t.value; });
+      update();
+    });
+    el.addEventListener("change", reorder);       // re-sort the ledger only when the slider is released
+  });
+  document.querySelectorAll("details.lrow").forEach(d => d.addEventListener("toggle", () => {
+    d.open ? openRows.add(d.dataset.id) : openRows.delete(d.dataset.id);
+  }));
+  new IntersectionObserver(([e]) => { document.getElementById("strip").hidden = e.isIntersecting; })
+    .observe(document.getElementById("board"));
+  document.querySelectorAll("[data-scope-btn]").forEach(b => b.onclick = () => { state.scope = b.dataset.scopeBtn; update(); reorder(); });
+  document.querySelectorAll("[data-preset]").forEach(b => b.addEventListener("click", () => applyPreset(b.dataset.preset)));
+  document.getElementById("restoreAll").onclick = restoreAll;
+}
+
+let persona = "Default";
+function syncInputs() {     // push state into every slider without rebuilding (keeps focus and open rows)
+  document.querySelectorAll("input[type=range]").forEach(el => {
+    el.value = el.dataset.scope === "W" ? state.W[el.dataset.key] : state[el.dataset.scope][el.dataset.key];
+  });
+  document.querySelectorAll("[data-preset]").forEach(b => b.setAttribute("aria-pressed", b.dataset.preset === persona));
+}
+function showTag(name) {
+  document.getElementById("tagline").textContent = name ? name + ": " + TAGS[name] : "Custom worldview.";
+}
+function applyPreset(name) {
+  persona = name; showTag(name);
+  state.W = Object.assign(JSON.parse(JSON.stringify(defaults.W)), presets[name]);
+  syncInputs(); update(); reorder();
+}
+function restoreAll() {
+  const fresh = JSON.parse(JSON.stringify(defaults));
+  Object.keys(fresh).forEach(k => state[k] = fresh[k]);
+  state.scope = "global"; persona = "Default"; showTag("Default");
+  syncInputs(); update(); reorder();
+}
+
+function verdict(net) {
+  const a = Math.abs(net);
+  if (state.scope === "us") return net >= 0
+    ? "Counting only Americans, the ledger looks much kinder: the USAID deaths vanish, because they happened to foreigners. Make of that what you will."
+    : "Even counting only Americans, net negative. Impressive, given most of the damage was exported.";
+  if (a < 10000) return "Roughly a wash. Somewhere, an economist is calling this 'second-order.'";
+  if (net > 1e6) return "On your assumptions, a net life-saver on the scale of a major public health program. Tesla's PR team would like a word.";
+  if (net > 0) return "On your assumptions, net positive. The cars outweigh the chainsaw — for now.";
+  if (net < -1e6) return "On your assumptions, the foreign-aid cuts swamp everything else. Electric cars have not saved enough lives to make up for gutting HIV and malaria programs.";
+  return "On your assumptions, net negative. The chainsaw outweighs the cars.";
+}
+
+let lastRes = [];
+function update() {
+  document.querySelectorAll(".v[data-vs]").forEach(el => {
+    const sc = el.dataset.vs, k = el.dataset.vk;
+    const c = sc === "W" ? world.find(w => w.id === k) : channels.find(ch => ch.id === sc).controls.find(x => x.id === k);
+    el.textContent = c.show(sc === "W" ? state.W[k] : state[sc][k]);
+  });
+  document.querySelectorAll("input[type=range]").forEach(el => {
+    const sc = el.dataset.scope, k = el.dataset.key;
+    const c = sc === "W" ? world.find(w => w.id === k) : channels.find(ch => ch.id === sc).controls.find(x => x.id === k);
+    el.setAttribute("aria-valuetext", c.show(sc === "W" ? state.W[k] : state[sc][k]));
+  });
+
+  const res = channels.map(ch => ({ ch, v: lives(ch) }));
+  lastRes = res;
+  // zero line sits where the biggest loss and biggest gain fit exactly, so no half of the chart is wasted
+  const maxPos = Math.max(0, ...res.map(r => r.v)), maxNeg = Math.max(0, ...res.map(r => -r.v));
+  const span = Math.max(1, maxPos + maxNeg), zero = maxNeg / span * 100;
+  document.getElementById("bars").style.setProperty("--zero", zero + "%");
+
+  res.forEach(({ ch, v }) => {
+    const txt = Math.abs(v) < 0.5 ? "0" : fmt(v);
+    const fh = formulaHTML(ch, v);
+    document.getElementById("bf-" + ch.id).innerHTML = fh;
+    if (ch.extra) {
+      const x = ch.extra(state[ch.id], state.W);
+      document.getElementById("bx-" + ch.id).innerHTML = x;
+    }
+    // ledger row
+    const cls = v >= 0 ? "pos" : "neg";
+    const w = Math.abs(v) / span * 100;
+    const bar = document.getElementById("b-" + ch.id);
+    bar.className = "bar " + cls;
+    bar.style.left = (v >= 0 ? zero : zero - w) + "%"; bar.style.width = w + "%";
+    bar.style.display = Math.abs(v) < 0.5 ? "none" : "";
+    const bv = document.getElementById("bv-" + ch.id);
+    bv.textContent = txt; bv.className = "val " + cls;
+  });
+
+  document.querySelectorAll("[data-scope-btn]").forEach(b => b.setAttribute("aria-pressed", b.dataset.scopeBtn === state.scope));
+  const lbl = state.scope === "us" ? "Net American lives" : "Net lives";
+  document.getElementById("netLabel").textContent = lbl;
+  document.getElementById("stripLabel").textContent = lbl;
+  const net = res.reduce((s, r) => s + r.v, 0);
+  const n1 = document.getElementById("net"); n1.textContent = fmt(net); n1.className = "net " + (net >= 0 ? "pos" : "neg");
+  const sn = document.getElementById("stripNet"); sn.textContent = fmt(net); sn.style.color = net >= 0 ? "var(--save)" : "var(--kill)";
+  const pr = document.getElementById("presets"); pr.classList.toggle("pos", net >= 0); pr.classList.toggle("neg", net < 0);
+  document.getElementById("verdict").textContent = verdict(net);
+  const mug = document.getElementById("mug"), want = "images/musk_" + (net >= 0 ? "good" : "bad") + ".jpg";
+  if (!mug.src.endsWith(want)) { mug.src = want; mug.alt = net >= 0 ? "Musk, beaming" : "Musk, with chainsaw"; }
+}
+
+function reorder() {            // move only rows that are out of place, and keep keyboard focus
+  const box = document.getElementById("bars"), active = document.activeElement;
+  const want = [...lastRes].sort((a, b) => b.v - a.v).map(({ ch }) => document.getElementById("row-" + ch.id));
+  want.forEach((row, i) => { if (box.children[i] !== row) box.insertBefore(row, box.children[i]); });
+  if (active && active !== document.activeElement && document.contains(active)) active.focus({ preventScroll: true });
+}
+
+build(); showTag(persona); update(); reorder();
+</script>
+</body>
+</html>
