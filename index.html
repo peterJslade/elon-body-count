@@ -241,10 +241,10 @@ function sCurveChart(fWith, fWithout, gapLabel, caption) {
 }
 const evChart = W => sCurveChart(yr => evShare(yr, W, true), yr => evShare(yr, W, false),
   `shaded gap = ${sumF({ discount: 0 }, t => evGap(W, t)).toFixed(1)} years of a fully electric fleet`,
-  "Share of the world's driving that is electric. Both paths get there; Musk gets there sooner.");
+  "Share of the world's driving that is electric.");
 const fsdChart = (c, W) => sCurveChart(yr => adopt(yr, c.mid, 5), yr => adopt(yr, c.mid + c.delta, 5),
   `shaded gap = ${fsdGapYears(c, { discount: 0 }).toFixed(1)} years of full FSD`,
-  "Share of the world's driving done by FSD. Both paths get there; Musk gets there sooner.");
+  "Share of the world's driving done by FSD.");
 
 // ---------- global worldview controls ----------
 const world = [
