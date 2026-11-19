@@ -280,7 +280,7 @@ const world = [
 const channels = [
   // ---- SAVED ----
   { id: "evclimate", group: "save", type: "save", title: "Tesla & the climate",
-    mech: "Tesla made the world go electric a few years sooner, and the CO₂ not emitted in those years means less warming and fewer heat- and climate-related deaths.",
+    mech: "Tesla launched the Roadster in 2008 and the Model S in 2012, when most carmakers treated EVs as compliance cars. It has since sold more than 7 million EVs and pushed rivals to follow. Passenger cars emit about 3.2 Gt of CO₂ a year, and EVs cut lifecycle emissions by roughly 20–70% depending on the grid. The question is how many years sooner the world went electric because of Tesla.",
     blurb: "EVs cut CO₂. What counts is how many years Tesla dragged the industry forward, and how long that CO₂ stays out of the air.",
     controls: [
       { id: "cut", label: "Lifecycle CO₂ cut from going electric (world average)", min: 0.2, max: 0.7, step: 0.05, val: 0.5, show: pct, ends: ["Coal grids", "", "Clean grids"] },
@@ -290,7 +290,7 @@ const channels = [
     src: ["Passenger cars emit about 3.2 Gt CO₂ a year (<a href=\"https://www.iea.org/energy-system/transport/road\" target=\"_blank\" rel=\"noopener\">IEA</a>)", "EVs cut lifecycle CO₂ by 60–68% in the US, 37–45% in China, 19–34% in India (<a href=\"https://theicct.org/publication/a-global-comparison-of-the-life-cycle-greenhouse-gas-emissions-of-combustion-engine-and-electric-passenger-cars/\" target=\"_blank\" rel=\"noopener\">ICCT, 2021</a>)", "Mortality cost of carbon: about 4,434 tonnes of CO₂ per death, extended past 2100 at the same rate (<a href=\"https://www.nature.com/articles/s41467-021-24487-w\" target=\"_blank\" rel=\"noopener\">Bressler, 2021</a>)", "World fleet half-electric around 2045 with Musk (assumption)"] },
 
   { id: "evair", group: "save", type: "save", title: "Tesla & city air",
-    mech: "Going electric sooner means fewer years of tailpipe soot in cities, and fewer deaths from breathing it.",
+    mech: "Tailpipe emissions from transport killed about 385,000 people in 2015, mostly through fine particles and ozone in cities. Most of that is heavy diesel trucks, not cars. EVs have no tailpipe, so going electric sooner means fewer years of that pollution.",
     blurb: "No tailpipe, no soot. Partly offset by power plants, conveniently far from your lungs.",
     controls: [
       { id: "base", label: "Deaths a year from car tailpipes (world)", min: 20000, max: 130000, step: 5000, val: 60000, show: v => num(v), ends: ["20k", "", "130k"] },
@@ -301,7 +301,7 @@ const channels = [
     src: ["About 385,000 deaths from transport tailpipe emissions in 2015, mostly heavy-duty diesel (<a href=\"https://theicct.org/publication/a-global-snapshot-of-the-air-pollution-related-health-impacts-of-transportation-sector-emissions-in-2010-and-2015/\" target=\"_blank\" rel=\"noopener\">Anenberg et al., 2019</a>)", "Light-duty cars account for roughly 60,000 of these (assumption)", "Baseline falls 2% a year as emission standards tighten (assumption)"] },
 
   { id: "energy", group: "save", type: "save", title: "Solar roofs (SolarCity)",
-    mech: "Rooftop solar that wouldn't otherwise exist displaces fossil power, keeping CO₂ out of the air.",
+    mech: "Tesla bought SolarCity, Musk's cousins' rooftop-solar company, for about $2.6 billion in 2016. Together they installed about 4 GW of solar panels, mostly on US roofs. Each MWh of solar displaces roughly 0.4 t of CO₂ from the US grid.",
     blurb: "SolarCity lost money, so Tesla bought it. The panels still cut CO₂. Megapacks are left out: whether grid batteries cut or raise emissions depends on what charges them.",
     controls: [
       { id: "gw", label: "Solar installed by SolarCity/Tesla", min: 0, max: 10, step: 0.5, val: 4, show: v => v + " GW", ends: ["0", "", "10 GW"] },
@@ -325,7 +325,7 @@ const channels = [
     src: ["1.19 million road deaths a year, held constant (<a href=\"https://www.who.int/publications/i/item/9789240086517\" target=\"_blank\" rel=\"noopener\">WHO, 2023</a>)", "6.0M miles per airbag-deploying crash on FSD vs 0.66M US average and 2.0M for manually driven Teslas (<a href=\"https://www.tesla.com/fsd/safety\" target=\"_blank\" rel=\"noopener\">Tesla Vehicle Safety Report, 2026</a>)", "1.74 million active FSD users, including earlier one-time purchases (<a href=\"https://www.notateslaapp.com/news/4862/tesla-fsd-hits-record-subs-purchased-with-75-of-new-orders\" target=\"_blank\" rel=\"noopener\">Not a Tesla App, Q3 2026</a>)", "Autopilot linked to at least 13 fatal crashes (<a href=\"https://static.nhtsa.gov/odi/inv/2022/INCLA-EA22002-14498.pdf\" target=\"_blank\" rel=\"noopener\">NHTSA, 2024</a>)", "S-curve: going from 10% to 90% adoption takes about 22 years (assumption)"] },
 
   { id: "starlink", group: "save", type: "save", title: "Starlink: disasters & the remote",
-    mech: "When disasters knock out phone towers, satellite internet lets rescuers coordinate and victims call for help.",
+    mech: "SpaceX began launching Starlink satellites in 2019 and now has more than 8,000 in orbit. When hurricanes and earthquakes knock out phone towers, Starlink terminals are often the first internet rescuers get. Disasters kill 10,000–20,000 people a year on average.",
     blurb: "Internet after hurricanes and earthquakes, when the towers are down. Real, uncounted.",
     controls: [
       { id: "prev", label: "Share of disaster deaths preventable with emergency comms", min: 0, max: 0.1, step: 0.005, val: 0.02, show: pct1, ends: ["0%", "", "10%"] },
@@ -336,7 +336,7 @@ const channels = [
     src: ["Disasters kill 10,000–20,000 people a year on average (<a href=\"https://ourworldindata.org/natural-disasters\" target=\"_blank\" rel=\"noopener\">Our World in Data / EM-DAT</a>)", "Starlink has served responders since about 2021 (assumption)", "Shares of lives saved are guesses (assumption)"] },
 
   { id: "launch", group: "save", type: "save", title: "Cheap rockets, more satellites",
-    mech: "Cheaper launches mean more weather satellites, better forecasts and earlier evacuations.",
+    mech: "SpaceX landed its first Falcon 9 booster in 2015 and has made reusable rockets routine, cutting launch costs roughly tenfold. Cheaper launches mean more weather satellites and better forecasts. Weather, climate and water disasters killed about 18,500 people a year in 2010–2019.",
     blurb: "Falcon 9 cut launch costs roughly tenfold. More weather satellites, better forecasts, earlier evacuations. Indirect, not zero.",
     controls: [
       { id: "avert", label: "Share of weather-disaster deaths averted by extra satellite data", min: 0, max: 0.1, step: 0.005, val: 0.02, show: pct1, ends: ["0%", "", "10%"] },
@@ -347,7 +347,7 @@ const channels = [
     src: ["About 185,000 deaths from weather, climate and water hazards in 2010–2019 (about 18,500 a year) (<a href=\"https://wmo.int/publication-series/wmo-atlas-of-mortality-and-economic-losses-from-weather-climate-and-water-extremes-1970-2019\" target=\"_blank\" rel=\"noopener\">WMO Atlas of Mortality, 2021</a>)", "Ten past years of cheap launch (assumption)", "Shares of lives saved are guesses (assumption)"] },
 
   { id: "neuralink", group: "save", type: "save", title: "Neuralink",
-    mech: "Brain implants restore some independence to paralysed patients; the quality-of-life gain is converted into life-equivalents.",
+    mech: "Neuralink implanted its first human patient in January 2024 and had 21 trial participants by January 2026. Patients with paralysis use the implant to move a cursor, type and play games. It's life-changing rather than life-saving, so the gain is converted into life-equivalents.",
     blurb: "About twenty patients moving cursors with their minds. Life-changing, not life-saving, so converted to life-equivalents via QALYs.",
     controls: [
       { id: "n", label: "Patients implanted", min: 0, max: 100, step: 1, val: 21, show: v => v, ends: ["0", "", "100"] },
@@ -358,7 +358,7 @@ const channels = [
     src: ["21 trial participants as of January 2026 (<a href=\"https://www.yahoo.com/news/articles/elon-musks-neuralink-says-21-183038116.html\" target=\"_blank\" rel=\"noopener\">Reuters, via Yahoo News</a>)", "About 40 discounted QALYs per statistical life (health economists' rule of thumb) (assumption)"] },
 
   { id: "kids", group: "save", type: "save", title: "Lives created, personally",
-    mech: "Musk has 14 children. That's it; that's the mechanism.",
+    mech: "Musk has 14 publicly known children with four mothers (as of 2025). He says falling birth rates are the biggest threat to civilisation. That's the mechanism.",
     blurb: "Musk says falling birth rates threaten civilisation, and has acted accordingly. Not lives <em>saved</em>, but the ledger isn't fussy.",
     controls: [
       { id: "n", label: "Children fathered (publicly reported)", min: 0, max: 30, step: 1, val: 14,
@@ -369,7 +369,7 @@ const channels = [
 
   // ---- KILLED ----
   { id: "usaid", group: "kill", type: "kill", title: "Shutting down USAID",
-    mech: "Closing USAID cut HIV drugs, malaria nets and child nutrition programs, and people die until someone else fills the gap.",
+    mech: "In early 2025 DOGE, led by Musk, dismantled USAID and cancelled most of its programs, including HIV drugs, malaria nets and child nutrition. A 2025 study in The Lancet projects about 14 million extra deaths by 2030 if the cuts hold. Other donors may fill part of the gap over time.",
     blurb: "DOGE put USAID 'in the wood chipper.' The Lancet projects ~14 million extra deaths by 2030 if the cuts hold. How much is on Musk is your call; how long until others fill the gap is another.",
     controls: [
       { id: "stick", label: "Share of the cuts that stick", min: 0, max: 1, step: 0.05, val: 0.5, show: pct, ends: ["All reversed", "", "Permanent"] },
@@ -379,7 +379,7 @@ const channels = [
     src: ["About 14 million extra deaths by 2030 under full defunding (about 2.8M a year) (<a href=\"https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(25)01186-9/fulltext\" target=\"_blank\" rel=\"noopener\">Cavalcanti et al., 2025, The Lancet</a>)", "Running tally of deaths from the cuts (<a href=\"https://www.bu.edu/sph/news/articles/2025/tracking-anticipated-deaths-from-usaid-funding-cuts/\" target=\"_blank\" rel=\"noopener\">Boston University Impact Counter</a>)", "Cuts began in 2025 (assumption)"] },
 
   { id: "doge", group: "kill", type: "kill", title: "The rest of DOGE",
-    mech: "Cutting US public-health funding removes programs that were saving lives at a known cost per life.",
+    mech: "Beyond USAID, DOGE and the administration cancelled thousands of US health and science grants in 2025, including roughly $2–3 billion in NIH research. Public-health spending in the US saves a life for roughly $1–10 million, so lost dollars translate into lost lives.",
     blurb: "NIH and CDC grants cancelled. An economist's way to count it: dollars cut ÷ dollars per life that spending used to save.",
     controls: [
       { id: "cut", label: "Domestic health funding cut per year", min: 0, max: 20, step: 0.5, val: 3, show: v => "$" + v + "B", ends: ["$0", "", "$20B"] },
@@ -390,7 +390,7 @@ const channels = [
     src: ["NIH grant terminations of roughly $2–3B (<a href=\"https://www.sciencenews.org/article/nih-grant-cuts-science-funding-billions\" target=\"_blank\" rel=\"noopener\">Science News, 2025</a>)", "The ~$11B CDC clawback was COVID-era money, ~80% restored in states that sued, so mostly excluded (<a href=\"https://kffhealthnews.org/courts/cdc-grant-trump-clawbacks-blue-red-state-comparison/\" target=\"_blank\" rel=\"noopener\">KFF Health News, 2025</a>)", "US public-health spending saves a life for roughly $1–10M (assumption)"] },
 
   { id: "ira", group: "kill", type: "kill", title: "Buying an election, losing the clean-energy credits",
-    mech: "Musk's money helped elect a government that repealed clean-energy credits, so the US emits more CO₂, which means more climate deaths.",
+    mech: "Musk spent about $291 million in the 2024 election, the most of any donor, helping elect a government that cut the Inflation Reduction Act's clean-energy credits in 2025. Princeton's REPEAT Project estimates the cuts add about 190 Mt of US CO₂ a year by 2030. Musk called the bill a 'disgusting abomination.'",
     blurb: "Spent ~$291M electing a government that repealed the clean-energy tax credits, then called the bill a 'disgusting abomination.'",
     controls: [
       { id: "mt", label: "Extra US emissions by 2035 from the 2025 budget law", min: 0, max: 800, step: 10, val: 470, show: v => v + " Mt/yr", ends: ["0", "", "800"] },
@@ -401,7 +401,7 @@ const channels = [
     src: ["Rolling back the clean-energy credits adds ~190 Mt CO₂ a year in 2030 and ~470 Mt by 2035 (<a href=\"https://zenodo.org/records/15801701\" target=\"_blank\" rel=\"noopener\">REPEAT Project, Princeton, 2025</a>)", "Alternative estimate: +315–574 Mt in 2035 (<a href=\"https://rhg.com/research/assessing-the-impacts-of-the-final-one-big-beautiful-bill/\" target=\"_blank\" rel=\"noopener\">Rhodium Group, 2025</a>)", "Musk gave about $291M in the 2024 cycle (<a href=\"https://www.opensecrets.org/elections-overview/biggest-donors?cycle=2024\" target=\"_blank\" rel=\"noopener\">OpenSecrets</a>)", "Of roughly $15–16B total 2024 election spending, so about 2% (assumption)"] },
 
   { id: "memphis", group: "kill", type: "kill", title: "xAI's gas turbines (Memphis & Southaven)",
-    mech: "Gas turbines powering xAI emit nitrogen oxides, which form fine particles and smog that kill people downwind.",
+    mech: "In 2024 xAI opened its Colossus supercomputer in South Memphis and powered it with dozens of gas turbines, many running without permits. A second site in Southaven, Mississippi followed. Environmental groups estimate the turbines could emit several thousand tonnes of NOx a year, which forms fine particles and smog downwind.",
     blurb: "Unpermitted gas turbines powering Grok, in neighbourhoods already leading the county in asthma.",
     controls: [
       { id: "nox", label: "NOx emitted", min: 0, max: 8000, step: 100, val: 4500, show: v => v.toLocaleString() + " t/yr", ends: ["0", "", "8,000"] },
@@ -413,7 +413,7 @@ const channels = [
 
   // ---- GUT ----
   { id: "covid", group: "gut", type: "mixed", title: "COVID & vaccine misinformation",
-    mech: "Three effects: keeping Fremont open spread COVID, donated machines may have helped patients, and looser rules on X spread vaccine misinformation.",
+    mech: "In May 2020 Musk reopened Tesla's Fremont factory against county orders; about 440 workers caught COVID that year. He also donated over 1,000 machines billed as ventilators, many of them CPAP or BiPAP units. After buying Twitter in 2022, he dropped its COVID misinformation policy.",
     blurb: "Reopened the Fremont plant against county orders. Donated ventilators, some of them CPAP machines. Then bought Twitter and loosened the rules on vaccine misinformation, after the vaccine rollout had peaked. His 'panic is dumb' tweets aren't counted; nobody knows how.",
     controls: [
       { id: "cases", label: "COVID cases among Fremont workers, 2020", min: 0, max: 2000, step: 10, val: 440, show: v => v, ends: ["0", "", "2,000"] },
@@ -429,7 +429,7 @@ const channels = [
     src: ["About 440 cases among Fremont workers, May–Dec 2020 (Alameda County data) (<a href=\"https://www.engadget.com/tesla-fremont-factory-covid-19-cases-200515835.html\" target=\"_blank\" rel=\"noopener\">Engadget, 2021</a>)", "Working-age infection fatality rate about 0.1–0.2% (<a href=\"https://link.springer.com/article/10.1007/s10654-020-00698-1\" target=\"_blank\" rel=\"noopener\">Levin et al., 2020</a>)", "About 234,000 US COVID deaths among unvaccinated adults were preventable (June 2021–March 2022) (<a href=\"https://www.healthsystemtracker.org/brief/covid19-and-other-leading-causes-of-death-in-the-us/\" target=\"_blank\" rel=\"noopener\">KFF, 2022</a>)", "Factory deaths doubled for onward spread (assumption)", "Musk said he donated over 1,000 ventilators; many were BiPAP/CPAP machines", "Three past years of X under Musk; misinformation shares are guesses (assumption)"] },
 
   { id: "ukraine", group: "gut", type: "mixed", title: "Starlink in Ukraine",
-    mech: "Starlink kept Ukraine's drones and troops connected, saving Ukrainian soldiers and killing Russian ones.",
+    mech: "SpaceX sent Starlink terminals to Ukraine days after Russia invaded in February 2022, and tens of thousands are now in use. They keep Ukraine's troops and drones connected. In 2022 Musk also refused to extend coverage to Crimea for a Ukrainian attack. Starlink saves Ukrainian soldiers and helps kill Russian ones.",
     blurb: "Kept Ukraine's army online. The same drones that saved Ukrainian soldiers killed Russian ones. Whose deaths count is a dial.",
     controls: [
       { id: "ua", label: "Ukrainian military deaths", min: 0, max: 300000, step: 5000, val: 100000, show: v => v.toLocaleString(), ends: ["0", "", "300k"] },
@@ -443,7 +443,7 @@ const channels = [
 
   // ---- SPECULATIVE ----
   { id: "ai", group: "gut", type: "mixed", title: "AI: OpenAI co-founder, xAI owner",
-    mech: "Musk speeds up AI, so he gets a share of the credit for its benefits and a share of the blame for its risks.",
+    mech: "Musk co-founded OpenAI in 2015, left in 2018, later sued it, and founded xAI in 2023 to build Grok. He has warned for years that AI could end humanity while racing to build it. He gets a share of the credit for AI's benefits and a share of the blame for its risks.",
     blurb: "Co-founded OpenAI for safety, sued it, built Grok. He owns a share of AI's benefits and its risks; how much his safety work offsets is a worldview dial.",
     controls: [
       { id: "share", label: "Musk's share of AI progress", min: 0, max: 0.15, step: 0.005, val: 0.03, show: pct1, ends: ["Bystander", "", "Prime mover"] },
@@ -452,7 +452,7 @@ const channels = [
     src: ["World population about 8.2 billion (<a href=\"https://population.un.org/wpp/\" target=\"_blank\" rel=\"noopener\">UN, 2025</a>)", "200M lives as the scale for 'AI is a miracle': an arbitrary anchor, roughly a decade of cancer deaths (assumption)"] },
 
   { id: "mars", group: "save", type: "save", title: "Making life multiplanetary",
-    mech: "If Earth ever has to be abandoned, a Mars colony would let humanity survive, and with it every future generation.",
+    mech: "Musk founded SpaceX in 2002 to make humanity multiplanetary. Starship, the rocket meant to get people to Mars, has been in test flights since 2023; nobody has gone yet. If Earth ever has to be abandoned, a Mars colony would save the species and every future generation.",
     blurb: "If Earth must be abandoned, a Mars colony saves the species, not the people. The payoff is every future life that would otherwise never happen. Longtermists say that's astronomical. They mean it literally.",
     controls: [
       { id: "p", label: "Chance SpaceX is the reason the lifeboat exists in time", min: 0, max: 0.5, step: 0.01, val: 0.1, show: pct, ends: ["Someone else would've done it", "", "Only SpaceX"] },
