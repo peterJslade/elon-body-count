@@ -307,7 +307,7 @@ const channels = [
     src: "~4 GW installed (SolarCity/Tesla filings). 1,300 MWh per MW per year (~15% US capacity factor). 0.4 t CO₂ per MWh displaced (US grid average, EIA). 25-year panel life. Bressler (2021) mortality cost of carbon." },
 
   { id: "fsd", group: "save", type: "mixed", title: "Full Self-Driving",
-    mech: "If self-driving cars crash less than people do, getting them a few years sooner saves the lives lost on the roads in between.",
+    mech: "Tesla began selling “Full Self-Driving” in 2016 and released it (as a supervised beta) in 2020. About 1.7 million Teslas now run it. No other carmaker sells a driver-assist system this capable. Tesla's own data say cars on FSD have about 9× fewer serious crashes per mile than the average US car (about 3× fewer than Teslas driven by hand).",
     blurb: "1.2 million people die on the world's roads every year. Self-driving will probably arrive with or without Musk. The question is how much sooner.",
     controls: [
       { id: "s", label: "Self-driving vs. human: deaths per mile", min: -0.5, max: 0.9, step: 0.05, val: 0.4,
@@ -318,7 +318,7 @@ const channels = [
     ],
     compute: (c, W) => ROAD * c.s * fsdGapYears(c, W) - 13,
     extra: (c, W) => fsdChart(c, W),
-    src: "WHO (2023): 1.19 million road deaths a year (held constant). NHTSA (2024) linked Autopilot to at least 13 fatal crashes. S-curve: 10%→90% adoption takes ~22 years." },
+    src: "WHO (2023): 1.19 million road deaths a year (held constant). Tesla Vehicle Safety Report (Oct 2026): 6.0M miles per airbag-deploying crash on FSD vs 0.66M US average and 2.0M for manually driven Teslas; 1.74M active FSD users (Q3 2026). NHTSA (2024) linked Autopilot to at least 13 fatal crashes. S-curve: 10%→90% adoption takes ~22 years." },
 
   { id: "starlink", group: "save", type: "save", title: "Starlink: disasters & the remote",
     mech: "When disasters knock out phone towers, satellite internet lets rescuers coordinate and victims call for help.",
